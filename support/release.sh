@@ -4,12 +4,11 @@ set -eu
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 version=$(tr -d '\r\n' < "$root/VERSION")
 
-case "$version" in
-  0|0.*[!0-9.]*|*[!0-9.]*|*.*.*.*|.*|*.|*..*)
-    echo "VERSION must be stable SemVer X.Y.Z." >&2
-    exit 1
-    ;;
-esac
+if ! printf '%s\n' "$version" |
+  grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'; then
+  echo "VERSION must be stable SemVer X.Y.Z without leading zeroes." >&2
+  exit 1
+fi
 
 major=${version%%.*}
 remainder=${version#*.}
