@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  complete:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          repository: epicecu/corelib
+          ref: 750b92d81685cb973d60630884d9e966939b1bc9
+          path: dependencies/corelib
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          repository: epicecu/table
+          ref: 98f8b9a8d5721caeda80860fb6a607480d89c00a
+          path: dependencies/table
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: arduino/setup-task@v3
+        with:
+          version: 3.52.0
+          repo-token: ${{ github.token }}
+      - run: sudo apt-get update
+      - run: sudo apt-get install --yes clang-format-18
+      - run: task all CORELIB_DIR=dependencies/corelib TABLE_DIR=dependencies/table
+
+  manifest:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - run: python -m json.tool tests/adapter-e2e.json >/dev/null

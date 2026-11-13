@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package fixtures.test;
 
-import "table.proto";
+import "table/v1/table.proto";
 
 message Share1 { sfixed32 startingNumber = 1; sfixed32 endingNumber = 2; sfixed32 counter = 3; }
 message Share2 { fixed32 frequencyInputPinId = 1; fixed32 digitalOutputPinId = 2; fixed32 analogInputAPinId = 3; fixed32 analogInputBPinId = 4; }

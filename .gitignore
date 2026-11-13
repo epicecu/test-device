@@ -1,0 +1,7 @@
+.deps/
+.pio/
+.programmor-conflicts/
+.venv/
+build/
+compile_commands.json
+dependencies/

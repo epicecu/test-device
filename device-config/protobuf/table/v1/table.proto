@@ -30,4 +30,3 @@ message Map {
   ScalarArray y_axis = 2;
   ScalarArray cells = 3;
 }
-

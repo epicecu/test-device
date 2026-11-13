@@ -1,0 +1,16 @@
+Programmor Test Device
+Copyright 2026 EpicECU
+
+This product uses EpicECU Corelib, licensed under the MIT Licence.
+https://github.com/epicecu/corelib
+
+This product uses EpicECU Table, licensed under the MIT Licence.
+https://github.com/epicecu/table
+
+This product uses Nanopb, licensed under the zlib licence.
+https://github.com/nanopb/nanopb
+
+This product uses the Embedded Template Library, licensed under the MIT Licence.
+https://github.com/ETLCPP/etl
+
+Full dependency licence texts are retained by their pinned upstream sources.

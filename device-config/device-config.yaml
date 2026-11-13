@@ -7,11 +7,15 @@ metadata:
   productBrand: EpicECU
   description: Current Device Config v1 equivalent of the original Programmor Test Device.
   developer: { name: EpicECU }
-  repository: https://github.com/epicecu/programmor
+  repository: https://github.com/epicecu/test-device
   license: Apache-2.0
 adapterProfiles:
   - adapterId: com.epicecu.programmor.adapter.test
     connectionMethod: test
+  - adapterId: com.epicecu.programmor.adapter.hid
+    connectionMethod: usb-hid
+    matches:
+      - { vendorId: 5824, productId: 1158 }
 protobuf:
   roots: [test.proto]
 hardware:
@@ -164,7 +168,7 @@ components:
   - { id: starting-number, type: text-field, required: true, label: Starting number, help: The starting number that the counter will count from., accessibility: { name: Counter starting number, group: counter }, binding: counter.starting-number, data: { commit: blur } }
   - { id: ending-number, type: text-field, required: true, label: Ending number, help: The end number that the counter will count to., accessibility: { name: Counter ending number, group: counter }, binding: counter.ending-number, data: { commit: blur } }
   - { id: welcome-message, type: text-field, required: true, label: Welcome message, accessibility: { name: Welcome message, group: string }, binding: message.welcome-text, data: { commit: blur } }
-  - { id: welcome-message-multiline, type: text-area, required: true, label: Welcome message (multiline), help: The welcome message presented as multiline text., accessibility: { name: Multiline welcome message, group: string }, binding: message.welcome-text, data: { maximumCharacters: 1024 } }
+  - { id: welcome-message-multiline, type: text-area, required: true, label: Welcome message (multiline), help: The welcome message presented as multiline text., accessibility: { name: Multiline welcome message, group: string }, binding: message.welcome-text, data: { maximumCharacters: 63 } }
   - { id: welcome-message-label, type: label, required: true, label: Welcome message label, accessibility: { name: Read-only welcome message, group: string }, binding: message.welcome-text, data: { textAlign: start } }
   - { id: developer-label, type: label, required: true, label: Dev string, accessibility: { name: Developer-authored label, group: string }, data: { textAlign: start } }
   - id: counter-status

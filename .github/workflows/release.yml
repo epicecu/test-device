@@ -1,0 +1,81 @@
+name: Release firmware
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: echo "version=$(support/release.sh validate)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: validate
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          repository: epicecu/corelib
+          ref: 750b92d81685cb973d60630884d9e966939b1bc9
+          path: dependencies/corelib
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          repository: epicecu/table
+          ref: 98f8b9a8d5721caeda80860fb6a607480d89c00a
+          path: dependencies/table
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: arduino/setup-task@v3
+        with:
+          version: 3.52.0
+          repo-token: ${{ github.token }}
+      - run: sudo apt-get update
+      - run: sudo apt-get install --yes clang-format-18
+      - run: task all CORELIB_DIR=dependencies/corelib TABLE_DIR=dependencies/table
+      - run: support/release.sh package
+      - uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: release/programmor-test-device-teensy41-v${{ needs.validate.outputs.version }}.hex
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: programmor-test-device-teensy41-v${{ needs.validate.outputs.version }}
+          path: release/*
+          if-no-files-found: error
+
+  publish:
+    needs: [validate, build]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: release
+          merge-multiple: true
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          tag_name: ${{ github.ref_name }}
+          prerelease: false
+          generate_release_notes: true
+          files: release/*

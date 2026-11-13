@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+vars:
+  CORELIB_DIR: '{{default "../corelib" .CORELIB_DIR}}'
+  TABLE_DIR: '{{default "../table" .TABLE_DIR}}'
+  BUILD_DIR: '{{default "build/native" .BUILD_DIR}}'
+  CLANG_FORMAT: '{{default "clang-format-18" .CLANG_FORMAT}}'
+
+tasks:
+  setup:
+    desc: Install pinned repository-local tooling
+    cmds:
+      - python3 -m venv .venv
+      - .venv/bin/pip install --requirement requirements-tools.txt
+    status:
+      - .venv/bin/pio --version | grep -F '6.2.0'
+      - .venv/bin/nanopb_generator --version | grep -F 'nanopb-0.4.9.1'
+
+  generate:
+    desc: Regenerate bounded Nanopb application sources
+    deps: [setup]
+    cmds:
+      - support/generate.sh
+
+  generate:check:
+    desc: Verify committed Nanopb sources are current
+    deps: [setup]
+    cmds:
+      - support/check-generated.sh
+
+  config:check:
+    desc: Check the public Config 1001 identity and source contract locally
+    deps: [setup]
+    cmds:
+      - .venv/bin/python support/validate-config.py
+
+  dependencies:check:
+    desc: Verify local integration dependencies and schema provenance
+    cmds:
+      - test "$(git -C {{.CORELIB_DIR}} rev-parse HEAD)" = 750b92d81685cb973d60630884d9e966939b1bc9
+      - TABLE_DIR={{.TABLE_DIR}} support/check-table-schema.sh
+
+  test:
+    desc: Build and run native device-model tests
+    deps: [generate:check, dependencies:check]
+    cmds:
+      - cmake -S . -B {{.BUILD_DIR}} -DCORELIB_DIR={{.CORELIB_DIR}} -DTABLE_DIR={{.TABLE_DIR}} -DCMAKE_BUILD_TYPE=Debug
+      - cmake --build {{.BUILD_DIR}} --parallel
+      - ctest --test-dir {{.BUILD_DIR}} --output-on-failure
+
+  build:
+    desc: Build the Teensy 4.1 RawHID firmware
+    deps: [generate:check]
+    cmds:
+      - .venv/bin/pio run --environment teensy41
+
+  upload:
+    desc: Build and upload firmware with the headless Teensy loader
+    deps: [generate:check]
+    cmds:
+      - .venv/bin/pio run --environment teensy41 --target upload
+
+  e2e:
+    desc: Run physical adapter acceptance against a programmed Teensy
+    requires:
+      vars: [PROGRAMMOR_ADAPTERS_DIR]
+    cmds:
+      - task --dir {{.PROGRAMMOR_ADAPTERS_DIR}}/tests/test-client run MANIFEST={{.ROOT_DIR}}/tests/adapter-e2e.json
+
+  cloud:status:
+    desc: Show local and Cloud project state
+    cmds:
+      - programmor-cli project status
+
+  cloud:pull:
+    desc: Pull Cloud source with conflict preservation
+    cmds:
+      - programmor-cli pull
+
+  cloud:check:
+    desc: Push a snapshot and run authoritative Cloud validation
+    cmds:
+      - programmor-cli check
+
+  format:check:
+    desc: Check owned source formatting and whitespace
+    cmds:
+      - '{{.CLANG_FORMAT}} --dry-run --Werror firmware/include/test_device.h firmware/src/main.cpp firmware/src/test_device.c tests/native/test_device_test.c'
+      - git diff --check
+
+  all:
+    desc: Run the complete software release gate
+    cmds:
+      - task: format:check
+      - task: config:check
+      - task: test
+      - task: build

@@ -1,0 +1,7 @@
+fixtures.test.Share4.welcomeText max_size:64
+fixtures.test.Share5.ipAddress max_size:40
+fixtures.test.Share5.dateTime max_size:32
+fixtures.test.Share7.memory max_size:64
+fixtures.test.TableRow.name max_size:32
+fixtures.test.TableRow.suburb max_size:32
+fixtures.test.Share8.rows max_count:4
