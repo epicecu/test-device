@@ -38,7 +38,7 @@ tasks:
   dependencies:check:
     desc: Verify local integration dependencies and schema provenance
     cmds:
-      - test "$(git -C {{.CORELIB_DIR}} rev-parse HEAD)" = 750b92d81685cb973d60630884d9e966939b1bc9
+      - test "$(git -C {{.CORELIB_DIR}} rev-parse HEAD)" = 5a8d97667851cc6ead26b7e26325d9a58ba957f1
       - TABLE_DIR={{.TABLE_DIR}} support/check-table-schema.sh
 
   test:
