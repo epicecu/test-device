@@ -19,7 +19,7 @@
     },
     "discover-and-connect": {
       "send": {"type": "request", "name": "discovery.start", "id": {"$generate": "uuid4", "as": "discovery_id"}, "data": {"match": [{"connectionMethod": "usb-hid", "vendorId": 5824, "productId": 1158}], "continuous": false, "establishTopology": true}},
-      "response": [{"name": "discovery.start", "id": {"$ref": "discovery_id"}, "data": {"devices": [{"connectionMethod": "usb-hid", "vendorId": 5824, "productId": 1158}]}}, {"name": "node.added", "data": {"nodeId": {"$capture": "node_id", "match": "uuid4"}, "connectionId": {"$capture": "connection_id", "match": "uuid4"}, "address": 2}}],
+      "response": [{"name": "discovery.start", "id": {"$ref": "discovery_id"}, "data": {"devices": [{"connectionMethod": "usb-hid", "vendorId": 5824, "productId": 1158}]}}, {"name": "connection.changed", "data": {"connectionId": {"$capture": "connection_id", "match": "uuid4"}, "state": "connected"}}, {"name": "node.added", "data": {"nodeId": {"$capture": "node_id", "match": "uuid4"}, "connectionId": {"$ref": "connection_id"}, "address": 2}}],
       "receiveTimeoutMs": 5000
     },
     "request-common": {

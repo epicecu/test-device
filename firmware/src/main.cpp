@@ -11,9 +11,15 @@ extern "C" {
 namespace {
 constexpr corelib_link_id_t kLinkId = 1;
 constexpr size_t kPendingRequests = 8;
+constexpr size_t kMaximumTransactionDataBytes = 512;
+constexpr size_t kTransactionEnvelopeBytes = 19;
+constexpr size_t kMaximumMessageBytes = 9 * CORELIB_FRAME_SIZE;
 constexpr uint8_t kLedPin = LED_BUILTIN;
 
-corelib::Device<512, 2, 32, kPendingRequests> core;
+static_assert(kMaximumMessageBytes >=
+              kMaximumTransactionDataBytes + kTransactionEnvelopeBytes);
+
+corelib::Device<kMaximumMessageBytes, 2, 32, kPendingRequests> core;
 programmor_test_device_t device;
 uint8_t incoming_frame[CORELIB_FRAME_SIZE];
 corelib_transaction_id_t requests[kPendingRequests];
@@ -71,7 +77,7 @@ bool initialise_corelib(uint32_t serial) {
   set_node_uuid(config.node_uuid, serial);
   config.heartbeat_interval_ms = 2000;
   config.application_response_timeout_ms = 1000;
-  config.maximum_transaction_data_size = 512;
+  config.maximum_transaction_data_size = kMaximumTransactionDataBytes;
   config.callbacks.send_frame = send_frame;
   config.callbacks.transaction = transaction_received;
   return core.init(config) == CORELIB_OK &&
@@ -86,7 +92,7 @@ void service_request() {
   request_head = (request_head + 1u) % kPendingRequests;
   --request_count;
   const bool common = request.action == CORELIB_ACTION_COMMON_REQUEST;
-  uint8_t payload[512];
+  uint8_t payload[kMaximumTransactionDataBytes];
   size_t payload_size = 0u;
   const bool encoded =
       programmor_test_device_encode(&device, common, request.share_id, payload,
