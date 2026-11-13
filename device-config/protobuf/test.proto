@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package fixtures.test;
+
+import "table.proto";
+
+message Share1 { sfixed32 startingNumber = 1; sfixed32 endingNumber = 2; sfixed32 counter = 3; }
+message Share2 { fixed32 frequencyInputPinId = 1; fixed32 digitalOutputPinId = 2; fixed32 analogInputAPinId = 3; fixed32 analogInputBPinId = 4; }
+message Share3 { sfixed32 loopsPerSecond = 1; }
+message Share4 { string welcomeText = 1; }
+message Share5 { float floatNumber = 1; double doubleNumber = 2; string ipAddress = 3; sfixed32 portNumber = 4; string dateTime = 5; bool booleanValue = 6; }
+message Share6 { sfixed32 dayOfTheWeek = 1; }
+message Share7 { bytes memory = 1; }
+enum TableStatus { TABLE_STATUS_UNSPECIFIED = 0; TABLE_STATUS_ACTIVE = 1; TABLE_STATUS_PENDING = 2; TABLE_STATUS_SUSPENDED = 3; }
+message TableRow { fixed32 id = 1; string name = 2; string suburb = 3; fixed32 age = 4; bool enabled = 5; TableStatus status = 6; }
+message Share8 { repeated TableRow rows = 1; }
+message Share9 { table.v1.Curve curve = 1; table.v1.Map map = 2; float engineSpeed = 3; float load = 4; }

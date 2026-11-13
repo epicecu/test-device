@@ -1,0 +1,444 @@
+formatVersion: 1
+interfaceVersion: 1
+configId: 1001
+configVersion: 2
+metadata:
+  productName: Test Device
+  productBrand: EpicECU
+  description: Current Device Config v1 equivalent of the original Programmor Test Device.
+  developer: { name: EpicECU }
+  repository: https://github.com/epicecu/programmor
+  license: Apache-2.0
+adapterProfiles:
+  - adapterId: com.epicecu.programmor.adapter.test
+    connectionMethod: test
+protobuf:
+  roots: [test.proto]
+hardware:
+  primaryController: main
+  controllers:
+    - { id: main, name: Test controller, description: Simulated controller provided by the test adapter. }
+  connectors:
+    - { id: connector-a, controller: main, name: Connector A }
+  pins:
+    - { id: 101, symbol: FRQ1, designation: Frequency input, assignable: true, connector: connector-a, position: A1, capabilities: [frequency-input], wireColours: [Blue, White] }
+    - { id: 102, symbol: DPO1, designation: Digital or frequency output, assignable: true, connector: connector-a, position: A2, capabilities: [digital-output, frequency-output], wireColours: [Green, Black] }
+    - { id: 103, symbol: AVI01, designation: Analogue or digital input 1, assignable: true, connector: connector-a, position: A3, capabilities: [analog-input, digital-input], wireColours: [Yellow, Black] }
+    - { id: 104, symbol: AVI02, designation: Analogue or digital input 2, assignable: true, connector: connector-a, position: A4, capabilities: [analog-input, digital-input], wireColours: [Red, White] }
+dataModels:
+  - id: counter
+    shareId: 1
+    messageType: fixtures.test.Share1
+    subscription: { intervalMs: 500, responseTimeoutMs: 1000 }
+    publish: { timeoutMs: 1000 }
+    values:
+      - { id: starting-number, field: startingNumber, type: int32, writable: true, sample: 0 }
+      - { id: ending-number, field: endingNumber, type: int32, writable: true, sample: 20 }
+      - { id: value, field: counter, type: int32, writable: false, sample: 4 }
+  - id: wiring
+    shareId: 2
+    messageType: fixtures.test.Share2
+    subscription: { intervalMs: 1000, responseTimeoutMs: 1000 }
+    publish: { timeoutMs: 1000 }
+    values:
+      - { id: frequency-input-pin, field: frequencyInputPinId, type: pin-id, writable: true, sample: 101 }
+      - { id: digital-output-pin, field: digitalOutputPinId, type: pin-id, writable: true, sample: 102 }
+      - { id: analog-input-a-pin, field: analogInputAPinId, type: pin-id, writable: true, sample: 103 }
+      - { id: analog-input-b-pin, field: analogInputBPinId, type: pin-id, writable: true, sample: 104 }
+  - id: runtime
+    shareId: 3
+    messageType: fixtures.test.Share3
+    subscription: { intervalMs: 500, responseTimeoutMs: 1000 }
+    values:
+      - { id: loops-per-second, field: loopsPerSecond, type: int32, writable: false, sample: 10000 }
+  - id: message
+    shareId: 4
+    messageType: fixtures.test.Share4
+    subscription: { intervalMs: 500, responseTimeoutMs: 1000 }
+    publish: { timeoutMs: 1000 }
+    values:
+      - { id: welcome-text, field: welcomeText, type: string, writable: true, sample: Hello there! }
+  - id: general
+    shareId: 5
+    messageType: fixtures.test.Share5
+    subscription: { intervalMs: 500, responseTimeoutMs: 1000 }
+    publish: { timeoutMs: 1000 }
+    values:
+      - { id: float-number, field: floatNumber, type: float, writable: true, sample: 23.45 }
+      - { id: double-number, field: doubleNumber, type: double, writable: true, sample: 1.2345678910111213 }
+      - { id: ip-address, field: ipAddress, type: string, writable: true, sample: 192.168.1.5 }
+      - { id: port-number, field: portNumber, type: int32, writable: true, unit: metre, sample: 8080, constraints: { minimum: 0, maximum: 65535 } }
+      - { id: date-time, field: dateTime, type: string, writable: true, sample: '2023-08-01T00:00:00Z' }
+      - { id: boolean-value, field: booleanValue, type: boolean, writable: true, sample: true }
+  - id: selection
+    shareId: 6
+    messageType: fixtures.test.Share6
+    subscription: { intervalMs: 500, responseTimeoutMs: 1000 }
+    publish: { timeoutMs: 1000 }
+    values:
+      - { id: day-of-week, field: dayOfTheWeek, type: int32, writable: true, sample: 1, constraints: { minimum: 1, maximum: 7 } }
+  - id: memory
+    shareId: 7
+    messageType: fixtures.test.Share7
+    subscription: { intervalMs: 1000, responseTimeoutMs: 1000 }
+    publish: { timeoutMs: 1000 }
+    values:
+      - id: data
+        field: memory
+        type: bytes
+        writable: true
+        sample: { encoding: base64, data: AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+Pw== }
+        constraints: { minimumLength: 64, maximumLength: 64 }
+  - id: table
+    shareId: 8
+    messageType: fixtures.test.Share8
+    subscription: { intervalMs: 1000, responseTimeoutMs: 1000 }
+    publish: { timeoutMs: 1000 }
+    values:
+      - id: rows
+        field: rows
+        type: record-collection
+        writable: true
+        rowIdentityField: id
+        recordFields:
+          - { id: id, field: id, type: uint32 }
+          - { id: name, field: name, type: string }
+          - { id: suburb, field: suburb, type: string }
+          - { id: age, field: age, type: uint32 }
+          - { id: enabled, field: enabled, type: boolean }
+          - { id: status, field: status, type: enumeration }
+        sample:
+          - { id: 1, name: Alex Morgan, suburb: Norwood, age: 34, enabled: true, status: 1 }
+          - { id: 2, name: Priya Shah, suburb: Glenelg, age: 28, enabled: true, status: 2 }
+          - { id: 3, name: Jordan Lee, suburb: Prospect, age: 45, enabled: false, status: 3 }
+          - { id: 4, name: Sam Taylor, suburb: Unley, age: 52, enabled: true, status: 1 }
+  - id: lookup-tables
+    shareId: 9
+    messageType: fixtures.test.Share9
+    subscription: { intervalMs: 500, responseTimeoutMs: 1000 }
+    publish: { timeoutMs: 1000 }
+    values:
+      - id: curve
+        field: curve
+        type: lookup-table
+        writable: true
+        sample:
+          x_axis: { type: 4, unsigned_values: [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000] }
+          cells: { type: 2, unsigned_values: [35, 42, 52, 63, 72, 78, 74, 66] }
+      - id: map
+        field: map
+        type: lookup-table
+        writable: true
+        sample:
+          x_axis: { type: 4, unsigned_values: [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000] }
+          y_axis: { type: 2, unsigned_values: [0, 20, 40, 60, 80, 100] }
+          cells:
+            type: 7
+            float_values: [32, 35, 40, 45, 50, 52, 50, 46, 38, 42, 48, 54, 60, 63, 60, 55, 45, 50, 57, 64, 70, 73, 70, 64, 52, 58, 65, 72, 78, 82, 79, 72, 58, 64, 71, 78, 85, 90, 87, 80, 62, 68, 75, 82, 89, 95, 92, 85]
+      - { id: engine-speed, field: engineSpeed, type: float, writable: false, unit: revolutions-per-minute, sample: 500 }
+      - { id: load, field: load, type: float, writable: false, unit: percent, sample: 0 }
+formatters:
+  - { id: number-basic, type: number, options: { precision: 3, grouping: false } }
+  - { id: lookup-decimal, type: number, options: { precision: 2, grouping: false } }
+  - { id: integer-plain, type: number, options: { precision: 0, grouping: false } }
+  - { id: integer-grouped, type: number, options: { precision: 0, grouping: true } }
+  - id: table-status
+    type: enumeration
+    options:
+      values:
+        - { value: { number: 0, name: TABLE_STATUS_UNSPECIFIED }, label: Unspecified }
+        - { value: { number: 1, name: TABLE_STATUS_ACTIVE }, label: Active }
+        - { value: { number: 2, name: TABLE_STATUS_PENDING }, label: Pending }
+        - { value: { number: 3, name: TABLE_STATUS_SUSPENDED }, label: Suspended }
+components:
+  - id: counter-value
+    type: text-field
+    required: true
+    label: Counter value
+    help: The current count number, which increases by 1 per second.
+    accessibility: { name: Current counter value, group: counter }
+    binding: counter.value
+    data: { commit: blur }
+  - { id: counter-gauge, type: gauge, required: true, label: Counter, accessibility: { name: Counter gauge, group: runtime }, binding: counter.value, data: { minimum: 0, maximum: 50, majorIntervals: 4, needleResponse: normal, bands: [{ minimum: 35, maximum: 45, label: High, state: warning, activeEffects: [illuminate, tellback] }, { minimum: 45, maximum: 50, label: Critical, state: fault, activeEffects: [illuminate, tellback] }] } }
+  - { id: loops-gauge, type: gauge, required: true, label: Loops per second, accessibility: { name: Device loops per second, group: runtime }, binding: runtime.loops-per-second, formatter: integer-grouped, data: { minimum: 0, maximum: 20000, tickInterval: 2000, displayDivisor: 1000, unit: lps } }
+  - { id: starting-number, type: text-field, required: true, label: Starting number, help: The starting number that the counter will count from., accessibility: { name: Counter starting number, group: counter }, binding: counter.starting-number, data: { commit: blur } }
+  - { id: ending-number, type: text-field, required: true, label: Ending number, help: The end number that the counter will count to., accessibility: { name: Counter ending number, group: counter }, binding: counter.ending-number, data: { commit: blur } }
+  - { id: welcome-message, type: text-field, required: true, label: Welcome message, accessibility: { name: Welcome message, group: string }, binding: message.welcome-text, data: { commit: blur } }
+  - { id: welcome-message-multiline, type: text-area, required: true, label: Welcome message (multiline), help: The welcome message presented as multiline text., accessibility: { name: Multiline welcome message, group: string }, binding: message.welcome-text, data: { maximumCharacters: 1024 } }
+  - { id: welcome-message-label, type: label, required: true, label: Welcome message label, accessibility: { name: Read-only welcome message, group: string }, binding: message.welcome-text, data: { textAlign: start } }
+  - { id: developer-label, type: label, required: true, label: Dev string, accessibility: { name: Developer-authored label, group: string }, data: { textAlign: start } }
+  - id: counter-status
+    type: indicator
+    required: true
+    label: Counter status
+    help: The current stage of the counter based on its value.
+    accessibility: { name: Counter status, group: counter }
+    binding: counter.value
+    data:
+      mappings:
+        - { match: { minimum: 0, maximum: 6 }, presentation: { label: Starting, state: inactive } }
+        - { match: { minimum: 7, maximum: 14 }, presentation: { label: Counting, state: active } }
+        - { match: { minimum: 15, maximum: 20 }, presentation: { label: Near end, state: warning } }
+      fallback: { label: Outside example range, state: neutral }
+  - { id: float-number, type: text-field, required: true, label: Float number, accessibility: { name: Float number, group: general }, binding: general.float-number, formatter: number-basic, data: { commit: blur } }
+  - { id: double-number, type: text-field, required: true, label: Double number, accessibility: { name: Double number, group: general }, binding: general.double-number, data: { commit: blur } }
+  - { id: ip-address, type: text-field, required: true, label: IP address, accessibility: { name: IP address, group: general }, binding: general.ip-address, data: { commit: blur } }
+  - { id: port-number, type: text-field, required: true, label: Port number, accessibility: { name: Port number, group: general }, binding: general.port-number, formatter: integer-plain, data: { commit: blur } }
+  - { id: date-time, type: text-field, required: true, label: Current time in UTC, accessibility: { name: Current time in UTC, group: general }, binding: general.date-time, data: { commit: blur } }
+  - { id: boolean-value, type: dropdown, required: true, label: Boolean value, accessibility: { name: Boolean value, group: general }, binding: general.boolean-value, data: { selectionRequired: true, options: [{ value: true, label: 'TRUE' }, { value: false, label: 'FALSE' }] } }
+  - { id: boolean-checkbox, type: checkbox, required: true, label: Boolean checkbox, help: Sets the shared Boolean value to true or false., accessibility: { name: Boolean checkbox, group: general }, binding: general.boolean-value, data: { trueLabel: 'TRUE', falseLabel: 'FALSE' } }
+  - { id: set-boolean-true, type: button, required: true, label: Set Boolean true, help: Immediately sets the shared Boolean value to true and stays green while the device reports true., accessibility: { name: Set Boolean true, group: general }, binding: general.boolean-value, data: { value: true, activeWhen: { value: true } } }
+  - id: example-table
+    type: table
+    required: false
+    label: Example table
+    help: Demonstrates an editable record collection with sortable columns.
+    accessibility: { name: Example device records, group: table }
+    binding: table.rows
+    data:
+      columns:
+        - { id: id, field: id, heading: ID, sortable: true }
+        - { id: name, field: name, heading: Name, editable: true, sortable: true }
+        - { id: suburb, field: suburb, heading: Suburb, editable: true, sortable: true }
+        - { id: age, field: age, heading: Age, formatter: integer-plain, editable: true, sortable: true }
+        - { id: enabled, field: enabled, heading: Enabled, editable: true, sortable: true }
+        - { id: status, field: status, heading: Status, formatter: table-status, editable: true, sortable: true }
+  - id: counter-graph
+    type: graph
+    required: false
+    label: Counter graph
+    help: Shows the starting value, live counter, and ending value over time.
+    accessibility: { name: Counter value history, group: graph }
+    data:
+      timeRangesSeconds: [30, 60, 300, 600]
+      defaultTimeRangeSeconds: 60
+      series:
+        - { id: start, binding: counter.starting-number, label: Start, interpolation: step, statistics: [latest] }
+        - { id: count, binding: counter.value, label: Count, interpolation: step, statistics: [latest, minimum, maximum, average, standard-deviation] }
+        - { id: end, binding: counter.ending-number, label: End, interpolation: step, statistics: [latest] }
+  - id: counter-scope
+    type: oscilloscope
+    required: false
+    label: Counter scope
+    help: Shows every retained counter Share using independently scaled, synchronised lanes.
+    accessibility: { name: Counter telemetry scope, group: graph }
+    data:
+      timeRangesMs: [5000, 10000, 30000, 60000]
+      defaultTimeRangeMs: 10000
+      channels:
+        - id: start
+          binding: counter.starting-number
+          label: Start
+          verticalScales: [{ id: normal, valuePerDivision: 5, label: 5 counts/div }]
+          defaultVerticalScale: normal
+          defaultCenter: 20
+        - id: count
+          binding: counter.value
+          label: Count
+          verticalScales:
+            - { id: fine, valuePerDivision: 2, label: 2 counts/div }
+            - { id: normal, valuePerDivision: 5, label: 5 counts/div }
+          defaultVerticalScale: normal
+          defaultCenter: 20
+        - id: end
+          binding: counter.ending-number
+          label: End
+          verticalScales: [{ id: normal, valuePerDivision: 5, label: 5 counts/div }]
+          defaultVerticalScale: normal
+          defaultCenter: 20
+  - id: memory-editor
+    type: hex-editor
+    required: false
+    label: Device memory
+    help: Inspect and overwrite the fixed 64-byte test-device memory in Hex, Binary, or ASCII.
+    accessibility: { name: Device memory Hex Editor, group: memory }
+    binding: memory.data
+    data: {}
+  - id: example-curve
+    type: lookup-table
+    required: false
+    label: Fuel curve
+    help: Edit a one-dimensional fuel curve while following the live engine-speed tracer.
+    accessibility: { name: Fuel curve lookup table, group: lookup-tables }
+    binding: lookup-tables.curve
+    data:
+      dimensions: 1
+      interpolation: linear
+      xAxis: { label: Engine speed, unit: RPM, formatter: integer-plain, editable: true, displayPosition: top }
+      cells: { label: Fuel, unit: '%', formatter: integer-plain, editable: true }
+      xTracer: lookup-tables.engine-speed
+  - id: example-map
+    type: lookup-table
+    required: false
+    label: Fuel map
+    help: Edit a two-dimensional fuel map while following live engine-speed and load tracers.
+    accessibility: { name: Fuel map lookup table, group: lookup-tables }
+    binding: lookup-tables.map
+    data:
+      dimensions: 2
+      interpolation: linear
+      xAxis: { label: Engine speed, unit: RPM, formatter: integer-plain, editable: true }
+      yAxis: { label: Load, unit: '%', formatter: integer-plain, editable: true, displayOrder: high-to-low }
+      cells: { label: Fuel, unit: '%', formatter: lookup-decimal, editable: true }
+      xTracer: lookup-tables.engine-speed
+      yTracer: lookup-tables.load
+  - id: boolean-status
+    type: indicator
+    required: true
+    label: Boolean status
+    help: Displays the current shared Boolean state.
+    accessibility: { name: Boolean status, group: general }
+    binding: general.boolean-value
+    data:
+      textAlign: center
+      mappings:
+        - { match: { value: true }, presentation: { label: Enabled, state: success } }
+        - { match: { value: false }, presentation: { label: Disabled, state: inactive } }
+      fallback: { label: Unknown, state: neutral }
+  - { id: day-number, type: text-field, required: true, label: Day of the week as number, accessibility: { name: Day of week number, group: selection }, binding: selection.day-of-week, data: { commit: blur } }
+  - id: day-name
+    type: dropdown
+    required: true
+    label: Day of the week as text
+    accessibility: { name: Day of week name, group: selection }
+    binding: selection.day-of-week
+    data:
+      selectionRequired: true
+      options:
+        - { value: 1, label: Monday }
+        - { value: 2, label: Tuesday }
+        - { value: 3, label: Wednesday }
+        - { value: 4, label: Thursday }
+        - { value: 5, label: Friday }
+        - { value: 6, label: Saturday }
+        - { value: 7, label: Sunday }
+  - id: device-connections
+    type: wire-selector
+    required: true
+    label: Device connections
+    accessibility: { name: Device physical wiring connections, group: wiring }
+    data:
+      roles:
+        - { id: idle-signal, name: Idle signal from ECU, direction: input, required: true, binding: wiring.frequency-input-pin, capabilities: [frequency-input], defaultPin: 101 }
+        - { id: tps-signal, name: TPS signal to ECU, direction: output, required: true, binding: wiring.digital-output-pin, capabilities: [frequency-output], defaultPin: 102 }
+        - { id: brake-switch, name: Brake pedal switch, direction: input, required: true, binding: wiring.analog-input-a-pin, capabilities: [digital-input], defaultPin: 103 }
+        - { id: app-signal, name: APP 1 signal, direction: input, required: true, binding: wiring.analog-input-b-pin, capabilities: [analog-input], defaultPin: 104 }
+functions:
+  - id: settings
+    name: Settings
+    description: Device settings and runtime information.
+    views:
+      - id: overview
+        name: Overview
+        sections:
+          - id: real-time
+            name: Real time
+            placements:
+              - { component: counter-gauge, layout: { column: 1, row: 1, columns: 3, rows: 3 } }
+              - { component: loops-gauge, layout: { column: 4, row: 1, columns: 3, rows: 3 } }
+          - id: connections
+            name: Device connections
+            placements:
+              - { component: device-connections, layout: { column: 1, row: 1, columns: 10, rows: 4 } }
+  - id: counter
+    name: Counter
+    description: A counter with upper and lower bounds.
+    views:
+      - id: overview
+        name: Overview
+        sections:
+          - id: counter
+            name: Counter
+            editMode: form
+            placements:
+              - { component: starting-number, layout: { column: 1, row: 1, columns: 4, rows: 1 } }
+              - { component: counter-value, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
+              - { component: ending-number, layout: { column: 9, row: 1, columns: 4, rows: 1 } }
+              - { component: counter-status, layout: { column: 5, row: 2, columns: 4, rows: 1 } }
+  - id: string
+    name: String
+    description: A string formatter example.
+    views:
+      - id: overview
+        name: Overview
+        sections:
+          - id: string
+            name: String
+            placements:
+              - { component: welcome-message, layout: { column: 1, row: 1, columns: 6, rows: 1 } }
+              - { component: welcome-message-multiline, layout: { column: 1, row: 2, columns: 6, rows: 2 } }
+              - { component: welcome-message-label, layout: { column: 1, row: 4, columns: 6, rows: 1 } }
+              - { component: developer-label, layout: { column: 1, row: 5, columns: 6, rows: 1 } }
+  - id: general
+    name: General types
+    description: A collection of general types and examples.
+    views:
+      - id: overview
+        name: Overview
+        sections:
+          - id: items
+            name: Items
+            placements:
+              - { component: float-number, layout: { column: 1, row: 1, columns: 4, rows: 1 } }
+              - { component: double-number, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
+              - { component: ip-address, layout: { column: 9, row: 1, columns: 4, rows: 1 } }
+              - { component: port-number, layout: { column: 1, row: 2, columns: 4, rows: 1 } }
+              - { component: date-time, layout: { column: 5, row: 2, columns: 4, rows: 1 } }
+              - { component: boolean-value, layout: { column: 9, row: 2, columns: 4, rows: 1 } }
+              - { component: boolean-checkbox, layout: { column: 1, row: 3, columns: 4, rows: 1 } }
+              - { component: set-boolean-true, layout: { column: 5, row: 3, columns: 4, rows: 1 } }
+              - { component: boolean-status, layout: { column: 9, row: 3, columns: 4, rows: 1 } }
+          - id: select-combobox
+            name: Select/Combobox
+            placements:
+              - { component: day-number, layout: { column: 1, row: 1, columns: 4, rows: 1 } }
+              - { component: day-name, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
+  - id: graph
+    name: "Graph & Oscilloscope"
+    description: Starting, current, and ending counter values plotted over time.
+    views:
+      - id: overview
+        name: Overview
+        sections:
+          - id: counter-history
+            name: Counter history
+            placements:
+              - { component: counter-graph, layout: { column: 1, row: 1, columns: 12, rows: 5 } }
+              - { component: counter-scope, layout: { column: 1, row: 6, columns: 12, rows: 6 } }
+  - id: table
+    name: Table
+    description: A record collection presented as a sortable table.
+    views:
+      - id: overview
+        name: Overview
+        sections:
+          - id: records
+            name: Device records
+            placements:
+              - { component: example-table, layout: { column: 1, row: 1, columns: 12, rows: 5 } }
+  - id: hex-editor
+    name: Hex Editor
+    description: Inspect and edit a fixed byte sequence using Offset, Hex or Binary, and ASCII.
+    views:
+      - id: overview
+        name: Overview
+        sections:
+          - id: memory
+            name: Device memory
+            placements:
+              - { component: memory-editor, layout: { column: 1, row: 1, columns: 12, rows: 6 } }
+  - id: lookup-tables
+    name: Lookup Tables
+    description: Editable curve and map data with heatmaps and live operating-point tracers.
+    views:
+      - id: overview
+        name: Overview
+        sections:
+          - id: calibration
+            name: Calibration tables
+            placements:
+              - { component: example-curve, layout: { column: 1, row: 1, columns: 7, rows: 3 } }
+              - { component: example-map, layout: { column: 1, row: 4, columns: 7, rows: 5 } }
+dashboard:
+  enabled: true
+  allowedComponents: [counter-gauge, loops-gauge, counter-value]
