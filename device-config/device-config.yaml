@@ -1,7 +1,7 @@
 formatVersion: 1
 interfaceVersion: 1
 configId: 1001
-configVersion: 2
+configVersion: 3
 metadata:
   productName: Test Device
   productBrand: EpicECU
@@ -68,7 +68,7 @@ dataModels:
     subscription: { intervalMs: 500, responseTimeoutMs: 1000 }
     publish: { timeoutMs: 1000 }
     values:
-      - { id: float-number, field: floatNumber, type: float, writable: true, sample: 23.45 }
+      - { id: float-number, field: floatNumber, type: float, writable: true, sample: 23.45, constraints: { minimum: 0, maximum: 100, multipleOf: 0.05 } }
       - { id: double-number, field: doubleNumber, type: double, writable: true, sample: 1.2345678910111213 }
       - { id: ip-address, field: ipAddress, type: string, writable: true, sample: 192.168.1.5 }
       - { id: port-number, field: portNumber, type: int32, writable: true, unit: metre, sample: 8080, constraints: { minimum: 0, maximum: 65535 } }
@@ -185,6 +185,7 @@ components:
         - { match: { minimum: 15, maximum: 20 }, presentation: { label: Near end, state: warning } }
       fallback: { label: Outside example range, state: neutral }
   - { id: float-number, type: text-field, required: true, label: Float number, accessibility: { name: Float number, group: general }, binding: general.float-number, formatter: number-basic, data: { commit: blur } }
+  - { id: float-number-slider, type: slider, required: true, label: Float number slider, help: Adjusts the shared float value from 0 to 100., accessibility: { name: Float number slider, group: general }, binding: general.float-number, formatter: number-basic, data: { minimum: 0, maximum: 100, step: 0.05 } }
   - { id: double-number, type: text-field, required: true, label: Double number, accessibility: { name: Double number, group: general }, binding: general.double-number, data: { commit: blur } }
   - { id: ip-address, type: text-field, required: true, label: IP address, accessibility: { name: IP address, group: general }, binding: general.ip-address, data: { commit: blur } }
   - { id: port-number, type: text-field, required: true, label: Port number, accessibility: { name: Port number, group: general }, binding: general.port-number, formatter: integer-plain, data: { commit: blur } }
@@ -392,6 +393,7 @@ functions:
               - { component: boolean-checkbox, layout: { column: 1, row: 3, columns: 4, rows: 1 } }
               - { component: set-boolean-true, layout: { column: 5, row: 3, columns: 4, rows: 1 } }
               - { component: boolean-status, layout: { column: 9, row: 3, columns: 4, rows: 1 } }
+              - { component: float-number-slider, layout: { column: 1, row: 4, columns: 8, rows: 1 } }
           - id: select-combobox
             name: Select/Combobox
             placements:
@@ -441,8 +443,8 @@ functions:
           - id: calibration
             name: Calibration tables
             placements:
-              - { component: example-curve, layout: { column: 1, row: 1, columns: 7, rows: 3 } }
-              - { component: example-map, layout: { column: 1, row: 4, columns: 7, rows: 5 } }
+              - { component: example-curve, layout: { column: 1, row: 1, columns: 8, rows: 3 } }
+              - { component: example-map, layout: { column: 1, row: 4, columns: 8, rows: 5 } }
 dashboard:
   enabled: true
   allowedComponents: [counter-gauge, loops-gauge, counter-value]

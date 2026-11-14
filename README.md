@@ -5,16 +5,17 @@ the Programmor App with a real microcontroller. It runs on a Teensy 4.1,
 connects through USB RawHID, identifies as Configuration 1001, and implements
 all nine demonstration Shares.
 
-The repository is also the Git source for the Test Device project in Programmor
-Cloud. `programmor.yaml` links the `device-config/` directory to that project;
-the CLI synchronises only the Device Config source and never touches firmware,
-tests, Git history, or build output.
+The repository keeps a reviewed public example of Config 1001 beside the
+firmware. Programmor Cloud is the authoritative online source; `programmor.yaml`
+links the `device-config/` working folder to that project. The CLI synchronises
+only managed Device Config files and never touches firmware, tests, Git history,
+or build output.
 
 ## Supported hardware
 
 - PJRC Teensy 4.1
 - USB RawHID `16c0:0486`
-- Programmor Config 1001, released version 1
+- Programmor Config 1001, development version 3
 
 Pico, USB Serial and Ethernet are not supported by firmware `v0.1.0`.
 
@@ -73,21 +74,28 @@ task e2e PROGRAMMOR_ADAPTERS_DIR=../programmor-adapters-private
 
 ## Synchronise Config 1001
 
-Production Cloud is the shared workspace; Git remains the review and history
-boundary. Sign in with the Programmor CLI, then use this sequence:
+Production Cloud is authoritative. Git remains useful for this public example,
+firmware review and release evidence. Sign in with the Programmor CLI, then use
+this sequence:
 
 ```sh
-programmor-cli project status
+programmor-cli status
 programmor-cli pull
 # Review and edit device-config/ and firmware together.
 git diff
 programmor-cli check
+programmor-cli push
 ```
 
 Always pull before editing when Cloud may have changed. The CLI preserves
-conflicts instead of merging them. `programmor-cli check` uploads the committed
-source snapshot, creates an immutable revision and runs authoritative Cloud
-validation. It does not publish Config 1001.
+conflicts instead of merging them. `programmor-cli check` performs transient
+Cloud validation and changes no Cloud state. `programmor-cli push` is the
+explicit durable save, revision, validation, unsigned development-package and
+activation workflow. Neither command publishes Config 1001 to the public
+catalogue.
+
+See [the Config 1001 source note](device-config/README.md) for the authority and
+release-reconciliation boundary.
 
 Public CI performs repository identity, Protobuf and schema-provenance checks.
 It intentionally has no user OAuth credentials and cannot push to Cloud.
@@ -96,8 +104,10 @@ It intentionally has no user OAuth credentials and cannot push to Cloud.
 
 Firmware SemVer is stored in `VERSION`. Common1 encodes it as
 `major * 1,000,000 + minor * 1,000 + patch`; release `v0.1.0` therefore reports
-`1000`. Common1 continues to report `shares_version = 1` until Config 1001
-version 2 is separately reviewed and published.
+`1000`. Development firmware reports `shares_version = 3`, matching the
+repository-owned Config 1001 source and the Test adapter. App development
+stages this source directly; publishing Config 1001 remains a separate reviewed
+Cloud operation.
 
 Device state is held in RAM and returns to documented defaults after reset.
 This firmware is for Programmor testing and demonstration, not production ECU

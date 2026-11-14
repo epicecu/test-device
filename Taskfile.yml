@@ -69,9 +69,9 @@ tasks:
       - task --dir {{.PROGRAMMOR_ADAPTERS_DIR}}/tests/test-client run MANIFEST={{.ROOT_DIR}}/tests/adapter-e2e.json
 
   cloud:status:
-    desc: Show local and Cloud project state
+    desc: Show environment-bound synchronisation state and the next safe action
     cmds:
-      - programmor-cli project status
+      - programmor-cli status
 
   cloud:pull:
     desc: Pull Cloud source with conflict preservation
@@ -79,9 +79,14 @@ tasks:
       - programmor-cli pull
 
   cloud:check:
-    desc: Push a snapshot and run authoritative Cloud validation
+    desc: Validate the local snapshot in Cloud without saving it
     cmds:
       - programmor-cli check
+
+  cloud:push:
+    desc: Save, validate, build and activate the development configuration
+    cmds:
+      - programmor-cli push
 
   format:check:
     desc: Check owned source formatting and whitespace
