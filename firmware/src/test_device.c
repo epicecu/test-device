@@ -351,8 +351,8 @@ bool programmor_test_device_publish(programmor_test_device_t *device,
     if (!decode_message(fixtures_test_Share5_fields, &value, data, data_size) ||
         !isfinite(value.floatNumber) || !isfinite(value.doubleNumber) ||
         value.floatNumber < 0.0F || value.floatNumber > 100.0F ||
-        !valid_float_step(value.floatNumber) ||
-        value.portNumber < 0 || value.portNumber > 65535) {
+        !valid_float_step(value.floatNumber) || value.portNumber < 0 ||
+        value.portNumber > 65535) {
       return false;
     }
     device->share5 = value;
