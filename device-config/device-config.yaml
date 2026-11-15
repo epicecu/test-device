@@ -5,7 +5,7 @@ configVersion: 3
 metadata:
   productName: Test Device
   productBrand: EpicECU
-  description: Current Device Config v1 equivalent of the original Programmor Test Device.
+  description: Explore live data, input controls, dashboards, editable records, device memory, wiring, and lookup tables with the official Programmor Test Device.
   developer: { name: EpicECU }
   repository: https://github.com/epicecu/test-device
   license: Apache-2.0
@@ -169,7 +169,7 @@ components:
   - { id: ending-number, type: text-field, required: true, label: Ending number, help: The end number that the counter will count to., accessibility: { name: Counter ending number, group: counter }, binding: counter.ending-number, data: { commit: blur } }
   - { id: welcome-message, type: text-field, required: true, label: Welcome message, accessibility: { name: Welcome message, group: string }, binding: message.welcome-text, data: { commit: blur } }
   - { id: welcome-message-multiline, type: text-area, required: true, label: Welcome message (multiline), help: The welcome message presented as multiline text., accessibility: { name: Multiline welcome message, group: string }, binding: message.welcome-text, data: { maximumCharacters: 63 } }
-  - { id: welcome-message-label, type: label, required: true, label: Welcome message label, accessibility: { name: Read-only welcome message, group: string }, binding: message.welcome-text, data: { textAlign: start } }
+  - { id: welcome-message-label, type: label, required: true, label: Welcome message (read-only), accessibility: { name: Read-only welcome message, group: string }, binding: message.welcome-text, data: { textAlign: start } }
   - { id: developer-label, type: label, required: true, label: Dev string, accessibility: { name: Developer-authored label, group: string }, data: { textAlign: start } }
   - id: counter-status
     type: indicator
@@ -196,7 +196,7 @@ components:
   - id: example-table
     type: table
     required: false
-    label: Example table
+    label: Editable records
     help: Demonstrates an editable record collection with sortable columns.
     accessibility: { name: Example device records, group: table }
     binding: table.rows
@@ -262,29 +262,29 @@ components:
   - id: example-curve
     type: lookup-table
     required: false
-    label: Fuel curve
-    help: Edit a one-dimensional fuel curve while following the live engine-speed tracer.
-    accessibility: { name: Fuel curve lookup table, group: lookup-tables }
+    label: 1D lookup table
+    help: Edit a one-dimensional lookup table while the live marker shows the current input.
+    accessibility: { name: 1D lookup table, group: lookup-tables }
     binding: lookup-tables.curve
     data:
       dimensions: 1
       interpolation: linear
-      xAxis: { label: Engine speed, unit: RPM, formatter: integer-plain, editable: true, displayPosition: top }
-      cells: { label: Fuel, unit: '%', formatter: integer-plain, editable: true }
+      xAxis: { label: Input, formatter: integer-plain, editable: true, displayPosition: top }
+      cells: { label: Output, formatter: integer-plain, editable: true }
       xTracer: lookup-tables.engine-speed
   - id: example-map
     type: lookup-table
     required: false
-    label: Fuel map
-    help: Edit a two-dimensional fuel map while following live engine-speed and load tracers.
-    accessibility: { name: Fuel map lookup table, group: lookup-tables }
+    label: 2D lookup table
+    help: Edit a two-dimensional lookup table while the live marker shows the current X and Y inputs.
+    accessibility: { name: 2D lookup table, group: lookup-tables }
     binding: lookup-tables.map
     data:
       dimensions: 2
       interpolation: linear
-      xAxis: { label: Engine speed, unit: RPM, formatter: integer-plain, editable: true }
-      yAxis: { label: Load, unit: '%', formatter: integer-plain, editable: true, displayOrder: high-to-low }
-      cells: { label: Fuel, unit: '%', formatter: lookup-decimal, editable: true }
+      xAxis: { label: Input X, formatter: integer-plain, editable: true }
+      yAxis: { label: Input Y, formatter: integer-plain, editable: true, displayOrder: high-to-low }
+      cells: { label: Output, formatter: lookup-decimal, editable: true }
       xTracer: lookup-tables.engine-speed
       yTracer: lookup-tables.load
   - id: boolean-status
@@ -304,7 +304,7 @@ components:
   - id: day-name
     type: dropdown
     required: true
-    label: Day of the week as text
+    label: Day selector
     accessibility: { name: Day of week name, group: selection }
     binding: selection.day-of-week
     data:
@@ -330,8 +330,8 @@ components:
         - { id: app-signal, name: APP 1 signal, direction: input, required: true, binding: wiring.analog-input-b-pin, capabilities: [analog-input], defaultPin: 104 }
 functions:
   - id: settings
-    name: Settings
-    description: Device settings and runtime information.
+    name: Device overview
+    description: Check that the test device is running and review its example wiring.
     views:
       - id: overview
         name: Overview
@@ -346,8 +346,8 @@ functions:
             placements:
               - { component: device-connections, layout: { column: 1, row: 1, columns: 10, rows: 4 } }
   - id: counter
-    name: Counter
-    description: A counter with upper and lower bounds.
+    name: Counter demo
+    description: Choose the start and end values, then watch the counter update live.
     views:
       - id: overview
         name: Overview
@@ -361,8 +361,8 @@ functions:
               - { component: ending-number, layout: { column: 9, row: 1, columns: 4, rows: 1 } }
               - { component: counter-status, layout: { column: 5, row: 2, columns: 4, rows: 1 } }
   - id: string
-    name: String
-    description: A string formatter example.
+    name: Text controls
+    description: Try single-line, multiline, and read-only text with one shared message.
     views:
       - id: overview
         name: Overview
@@ -375,8 +375,8 @@ functions:
               - { component: welcome-message-label, layout: { column: 1, row: 4, columns: 6, rows: 1 } }
               - { component: developer-label, layout: { column: 1, row: 5, columns: 6, rows: 1 } }
   - id: general
-    name: General types
-    description: A collection of general types and examples.
+    name: Input controls
+    description: Try numbers, addresses, dates, switches, buttons, sliders, and dropdowns.
     views:
       - id: overview
         name: Overview
@@ -400,8 +400,8 @@ functions:
               - { component: day-number, layout: { column: 1, row: 1, columns: 4, rows: 1 } }
               - { component: day-name, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
   - id: graph
-    name: "Graph & Oscilloscope"
-    description: Starting, current, and ending counter values plotted over time.
+    name: Counter history
+    description: Watch counter values over time using graph and oscilloscope views.
     views:
       - id: overview
         name: Overview
@@ -412,8 +412,8 @@ functions:
               - { component: counter-graph, layout: { column: 1, row: 1, columns: 12, rows: 5 } }
               - { component: counter-scope, layout: { column: 1, row: 6, columns: 12, rows: 6 } }
   - id: table
-    name: Table
-    description: A record collection presented as a sortable table.
+    name: Editable records
+    description: View, sort, and edit example records stored on the test device.
     views:
       - id: overview
         name: Overview
@@ -423,8 +423,8 @@ functions:
             placements:
               - { component: example-table, layout: { column: 1, row: 1, columns: 12, rows: 5 } }
   - id: hex-editor
-    name: Hex Editor
-    description: Inspect and edit a fixed byte sequence using Offset, Hex or Binary, and ASCII.
+    name: Device memory
+    description: Inspect and edit the device's 64-byte memory in hex, binary, or ASCII.
     views:
       - id: overview
         name: Overview
@@ -434,17 +434,34 @@ functions:
             placements:
               - { component: memory-editor, layout: { column: 1, row: 1, columns: 12, rows: 6 } }
   - id: lookup-tables
-    name: Lookup Tables
-    description: Editable curve and map data with heatmaps and live operating-point tracers.
+    name: Lookup tables
+    description: Edit one- and two-dimensional tables while live markers show the current inputs.
     views:
       - id: overview
         name: Overview
         sections:
           - id: calibration
-            name: Calibration tables
+            name: Lookup examples
             placements:
               - { component: example-curve, layout: { column: 1, row: 1, columns: 8, rows: 3 } }
               - { component: example-map, layout: { column: 1, row: 4, columns: 8, rows: 5 } }
 dashboard:
   enabled: true
-  allowedComponents: [counter-gauge, loops-gauge, counter-value]
+  allowedComponents:
+    - counter-gauge
+    - loops-gauge
+    - counter-value
+    - welcome-message-label
+    - day-name
+    - boolean-checkbox
+    - set-boolean-true
+    - float-number-slider
+    - counter-status
+    - welcome-message-multiline
+    - memory-editor
+    - device-connections
+    - example-table
+    - counter-graph
+    - counter-scope
+    - example-curve
+    - example-map
