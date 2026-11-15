@@ -15,7 +15,7 @@ Rewrite Config 1001 for visitors without automotive knowledge and expand its das
 | `graph` | **Counter history** | Watch counter values over time using graph and oscilloscope views. |
 | `table` | **Editable records** | View, sort, and edit example records stored on the test device. |
 | `hex-editor` | **Device memory** | Inspect and edit the device’s 64-byte memory in hex, binary, or ASCII. |
-| `lookup-tables` | **Lookup tables** | Edit one- and two-dimensional tables while live markers show the current inputs. |
+| `lookup-tables` | **Lookup tables** | Edit 1D or 2D tables. |
 
 ## Neutral Lookup Presentation
 

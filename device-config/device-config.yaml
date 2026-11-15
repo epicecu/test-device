@@ -435,7 +435,7 @@ functions:
               - { component: memory-editor, layout: { column: 1, row: 1, columns: 12, rows: 6 } }
   - id: lookup-tables
     name: Lookup tables
-    description: Edit one- and two-dimensional tables while live markers show the current inputs.
+    description: Edit 1D or 2D tables.
     views:
       - id: overview
         name: Overview

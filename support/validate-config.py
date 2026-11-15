@@ -57,7 +57,7 @@ SHOWCASE_FUNCTIONS = [
     (
         "lookup-tables",
         "Lookup tables",
-        "Edit one- and two-dimensional tables while live markers show the current inputs.",
+        "Edit 1D or 2D tables.",
     ),
 ]
 
