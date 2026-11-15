@@ -80,6 +80,11 @@ static bool valid_rows(const fixtures_test_Share8 *value) {
   return true;
 }
 
+static bool valid_float_step(float value) {
+  const float scaled = value * 20.0F;
+  return fabsf(scaled - roundf(scaled)) <= 0.0001F;
+}
+
 static bool encode_share9(const programmor_test_device_t *device,
                           uint8_t *output, size_t capacity,
                           size_t *output_size) {
@@ -164,7 +169,7 @@ bool programmor_test_device_init(programmor_test_device_t *device,
   device->common.id = 2u;
   device->common.registry_id = 1001u;
   device->common.serial_number = serial_number;
-  device->common.shares_version = 1u;
+  device->common.shares_version = PROGRAMMOR_TEST_DEVICE_CONFIG_VERSION;
   device->common.firmware_version = firmware_version;
   strcpy(device->common.device_name, "Programmor Test Device");
   device->share1.endingNumber = 20;
@@ -346,7 +351,8 @@ bool programmor_test_device_publish(programmor_test_device_t *device,
     if (!decode_message(fixtures_test_Share5_fields, &value, data, data_size) ||
         !isfinite(value.floatNumber) || !isfinite(value.doubleNumber) ||
         value.floatNumber < 0.0F || value.floatNumber > 100.0F ||
-        value.portNumber < 0 || value.portNumber > 65535) {
+        !valid_float_step(value.floatNumber) || value.portNumber < 0 ||
+        value.portNumber > 65535) {
       return false;
     }
     device->share5 = value;
