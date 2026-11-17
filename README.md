@@ -79,7 +79,7 @@ firmware review and release evidence. Sign in with the Programmor CLI, then use
 this sequence:
 
 ```sh
-programmor-cli status
+programmor-cli project status
 programmor-cli pull
 # Review and edit device-config/ and firmware together.
 git diff
