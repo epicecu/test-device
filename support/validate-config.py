@@ -13,51 +13,48 @@ TEST_PROTO = ROOT / "device-config" / "protobuf" / "test.proto"
 TABLE_PROTO = ROOT / "device-config" / "protobuf" / "table" / "v1" / "table.proto"
 DEVICE_HEADER = ROOT / "firmware" / "include" / "test_device.h"
 
-SHOWCASE_DESCRIPTION = (
-    "Explore live data, input controls, dashboards, editable records, device "
-    "memory, wiring, and lookup tables with the official Programmor Test Device."
-)
+SHOWCASE_DESCRIPTION = "Explore Programmor components and workflows."
 
 SHOWCASE_FUNCTIONS = [
     (
         "settings",
         "Device overview",
-        "Check that the test device is running and review its example wiring.",
+        "Runtime status and wiring.",
     ),
     (
         "counter",
         "Counter demo",
-        "Choose the start and end values, then watch the counter update live.",
+        "Set bounds and watch the count.",
     ),
     (
         "string",
         "Text controls",
-        "Try single-line, multiline, and read-only text with one shared message.",
+        "Edit and compare shared text.",
     ),
     (
         "general",
         "Input controls",
-        "Try numbers, addresses, dates, switches, buttons, sliders, and dropdowns.",
+        "Try common values and controls.",
     ),
     (
         "graph",
-        "Counter history",
-        "Watch counter values over time using graph and oscilloscope views.",
+        "Data plots",
+        "Compare graph, scope, and scatter views.",
     ),
     (
         "table",
         "Editable records",
-        "View, sort, and edit example records stored on the test device.",
+        "Sort and edit device records.",
     ),
     (
         "hex-editor",
         "Device memory",
-        "Inspect and edit the device's 64-byte memory in hex, binary, or ASCII.",
+        "Inspect and edit device bytes.",
     ),
     (
         "lookup-tables",
         "Lookup tables",
-        "Edit 1D or 2D tables.",
+        "Edit 1D and 2D tables.",
     ),
 ]
 
@@ -79,6 +76,10 @@ DASHBOARD_COMPONENTS = [
     "counter-scope",
     "example-curve",
     "example-map",
+    "boolean-choice",
+    "float-linear-gauge",
+    "counter-range",
+    "input-scatter",
 ]
 
 SHOWCASE_COMPONENT_LABELS = {
@@ -95,7 +96,7 @@ def main() -> None:
     assert value["formatVersion"] == 1
     assert value["interfaceVersion"] == 1
     assert value["configId"] == 1001
-    assert value["configVersion"] == 3
+    assert value["configVersion"] == 4
     header = DEVICE_HEADER.read_text(encoding="utf-8")
     version_match = re.search(
         r"PROGRAMMOR_TEST_DEVICE_CONFIG_VERSION\s*=\s*(\d+)", header
@@ -117,13 +118,21 @@ def main() -> None:
     component_ids = [component["id"] for component in component_list]
     assert len(component_ids) == len(set(component_ids))
     components = {component["type"] for component in component_list}
-    assert {"hex-editor", "table", "lookup-table"}.issubset(components)
+    assert {
+        "hex-editor",
+        "table",
+        "lookup-table",
+        "segmented-choice",
+        "linear-gauge",
+        "range-slider",
+        "scatter-plot",
+    }.issubset(components)
     components_by_id = {component["id"]: component for component in component_list}
     assert value["dashboard"] == {
         "enabled": True,
         "allowedComponents": DASHBOARD_COMPONENTS,
     }
-    assert len(DASHBOARD_COMPONENTS) == len(set(DASHBOARD_COMPONENTS)) == 17
+    assert len(DASHBOARD_COMPONENTS) == len(set(DASHBOARD_COMPONENTS)) == 21
     assert all(component_id in components_by_id for component_id in DASHBOARD_COMPONENTS)
     assert {
         component_id: components_by_id[component_id]["label"]

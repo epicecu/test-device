@@ -1,21 +1,21 @@
-# Make Config 1001 a Clear, Customisable Showcase
+# Config 1001 Version 4 Showcase
 
 ## Summary
 
-Rewrite Config 1001 for visitors without automotive knowledge and expand its dashboard picker into a representative showcase of every supported component family. Preserve all stable IDs, bindings, protocol fields, function order, and firmware behaviour.
+Keep Config 1001 concise for visitors without automotive knowledge and demonstrate the supported component families. Preserve stable IDs, bindings, protocol fields, function order, and firmware behaviour.
 
 ## Sidebar Copy
 
 | Function ID | New name | New description |
 | --- | --- | --- |
-| `settings` | **Device overview** | Check that the test device is running and review its example wiring. |
-| `counter` | **Counter demo** | Choose the start and end values, then watch the counter update live. |
-| `string` | **Text controls** | Try single-line, multiline, and read-only text with one shared message. |
-| `general` | **Input controls** | Try numbers, addresses, dates, switches, buttons, sliders, and dropdowns. |
-| `graph` | **Counter history** | Watch counter values over time using graph and oscilloscope views. |
-| `table` | **Editable records** | View, sort, and edit example records stored on the test device. |
-| `hex-editor` | **Device memory** | Inspect and edit the device’s 64-byte memory in hex, binary, or ASCII. |
-| `lookup-tables` | **Lookup tables** | Edit 1D or 2D tables. |
+| `settings` | **Device overview** | Runtime status and wiring. |
+| `counter` | **Counter demo** | Set bounds and watch the count. |
+| `string` | **Text controls** | Edit and compare shared text. |
+| `general` | **Input controls** | Try common values and controls. |
+| `graph` | **Data plots** | Compare graph, scope, and scatter views. |
+| `table` | **Editable records** | Sort and edit device records. |
+| `hex-editor` | **Device memory** | Inspect and edit device bytes. |
+| `lookup-tables` | **Lookup tables** | Edit 1D and 2D tables. |
 
 ## Neutral Lookup Presentation
 
@@ -41,19 +41,26 @@ Use clearer picker labels where needed:
 - `example-table`: **Editable records**
 - Lookup components use their new neutral names.
 
-The picker remains an allowlist only; no components are automatically placed, and each selected component uses its existing preferred dashboard dimensions.
+Add `boolean-choice`, `float-linear-gauge`, `counter-range`, and `input-scatter` to the allowlist. The picker remains an allowlist only; no components are automatically placed.
+
+## New Components
+
+- Place Segmented Choice and Linear Gauge on Input controls.
+- Place Range Slider on Counter demo.
+- Place Scatter Plot after the graph and oscilloscope on Data plots.
+- Reuse existing bindings so the controls demonstrate shared canonical values without Protobuf changes.
 
 ## Validation
 
-- Preserve all existing uncommitted Config v3, firmware, support, and test changes.
-- Validate that all 17 dashboard entries resolve uniquely and remain compatible with their layout capabilities.
-- Stage Config 1001 through the App development-config workflow.
-- Smoke-test adding compact, chart, table, memory, lookup, scope, and wiring components to a dashboard.
+- Retain immutable Config 1001 versions 2 and 3 as history fixtures.
+- Validate that all 21 dashboard entries resolve uniquely and remain compatible with their layout capabilities.
+- Stage and publish Config 1001 version 4 through the Cloud release workflow.
+- Smoke-test the four new component types and existing representative components.
 - Verify sidebar and picker copy at normal and narrow widths.
-- Run the complete Test Device and App gates, followed by `programmor-cli check` without publishing Config 1001.
+- Run the complete Test Device, Device Config, adapter, App, documentation, Cloud, CLI and WWW gates.
 
 ## Assumptions
 
 - Config 1001 targets first-time users and developers without ECU knowledge.
 - Existing saved dashboards remain valid because component and function IDs do not change.
-- The unpublished version 3 draft does not require another version increment.
+- Published version 3 remains immutable; these changes use version 4.

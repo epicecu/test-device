@@ -1,11 +1,11 @@
 formatVersion: 1
 interfaceVersion: 1
 configId: 1001
-configVersion: 3
+configVersion: 4
 metadata:
   productName: Test Device
   productBrand: EpicECU
-  description: Explore live data, input controls, dashboards, editable records, device memory, wiring, and lookup tables with the official Programmor Test Device.
+  description: Explore Programmor components and workflows.
   developer: { name: EpicECU }
   repository: https://github.com/epicecu/test-device
   license: Apache-2.0
@@ -186,6 +186,8 @@ components:
       fallback: { label: Outside example range, state: neutral }
   - { id: float-number, type: text-field, required: true, label: Float number, accessibility: { name: Float number, group: general }, binding: general.float-number, formatter: number-basic, data: { commit: blur } }
   - { id: float-number-slider, type: slider, required: true, label: Float number slider, help: Adjusts the shared float value from 0 to 100., accessibility: { name: Float number slider, group: general }, binding: general.float-number, formatter: number-basic, data: { minimum: 0, maximum: 100, step: 0.05 } }
+  - { id: boolean-choice, type: segmented-choice, required: true, label: Boolean choice, accessibility: { name: Boolean segmented choice, group: general }, binding: general.boolean-value, data: { commit: immediate, options: [{ value: false, label: 'Off' }, { value: true, label: 'On' }] } }
+  - { id: float-linear-gauge, type: linear-gauge, required: true, label: Float level, accessibility: { name: Float linear gauge, group: general }, binding: general.float-number, formatter: number-basic, data: { minimum: 0, maximum: 100, fill: { style: striped, colour: blue } } }
   - { id: double-number, type: text-field, required: true, label: Double number, accessibility: { name: Double number, group: general }, binding: general.double-number, data: { commit: blur } }
   - { id: ip-address, type: text-field, required: true, label: IP address, accessibility: { name: IP address, group: general }, binding: general.ip-address, data: { commit: blur } }
   - { id: port-number, type: text-field, required: true, label: Port number, accessibility: { name: Port number, group: general }, binding: general.port-number, formatter: integer-plain, data: { commit: blur } }
@@ -251,6 +253,28 @@ components:
           verticalScales: [{ id: normal, valuePerDivision: 5, label: 5 counts/div }]
           defaultVerticalScale: normal
           defaultCenter: 20
+  - id: counter-range
+    type: range-slider
+    required: true
+    label: Counter range
+    accessibility: { name: Counter start and end range, group: counter }
+    data:
+      lowerBinding: counter.starting-number
+      upperBinding: counter.ending-number
+      minimum: 0
+      maximum: 50
+      step: 1
+  - id: input-scatter
+    type: scatter-plot
+    required: false
+    label: Input scatter
+    accessibility: { name: Input X versus input Y scatter plot, group: graph }
+    data:
+      timeRangesSeconds: [30, 60, 300]
+      defaultTimeRangeSeconds: 60
+      maximumPairingSkewMs: 100
+      xAxis: { binding: lookup-tables.engine-speed, label: Input X, minimum: 0, maximum: 4000 }
+      yAxis: { binding: lookup-tables.load, label: Input Y, minimum: 0, maximum: 100 }
   - id: memory-editor
     type: hex-editor
     required: false
@@ -331,7 +355,7 @@ components:
 functions:
   - id: settings
     name: Device overview
-    description: Check that the test device is running and review its example wiring.
+    description: Runtime status and wiring.
     views:
       - id: overview
         name: Overview
@@ -347,7 +371,7 @@ functions:
               - { component: device-connections, layout: { column: 1, row: 1, columns: 10, rows: 4 } }
   - id: counter
     name: Counter demo
-    description: Choose the start and end values, then watch the counter update live.
+    description: Set bounds and watch the count.
     views:
       - id: overview
         name: Overview
@@ -360,9 +384,10 @@ functions:
               - { component: counter-value, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
               - { component: ending-number, layout: { column: 9, row: 1, columns: 4, rows: 1 } }
               - { component: counter-status, layout: { column: 5, row: 2, columns: 4, rows: 1 } }
+              - { component: counter-range, layout: { column: 1, row: 3, columns: 8, rows: 2 } }
   - id: string
     name: Text controls
-    description: Try single-line, multiline, and read-only text with one shared message.
+    description: Edit and compare shared text.
     views:
       - id: overview
         name: Overview
@@ -376,7 +401,7 @@ functions:
               - { component: developer-label, layout: { column: 1, row: 5, columns: 6, rows: 1 } }
   - id: general
     name: Input controls
-    description: Try numbers, addresses, dates, switches, buttons, sliders, and dropdowns.
+    description: Try common values and controls.
     views:
       - id: overview
         name: Overview
@@ -394,14 +419,16 @@ functions:
               - { component: set-boolean-true, layout: { column: 5, row: 3, columns: 4, rows: 1 } }
               - { component: boolean-status, layout: { column: 9, row: 3, columns: 4, rows: 1 } }
               - { component: float-number-slider, layout: { column: 1, row: 4, columns: 8, rows: 1 } }
+              - { component: boolean-choice, layout: { column: 1, row: 5, columns: 6, rows: 1 } }
+              - { component: float-linear-gauge, layout: { column: 7, row: 5, columns: 6, rows: 1 } }
           - id: select-combobox
             name: Select/Combobox
             placements:
               - { component: day-number, layout: { column: 1, row: 1, columns: 4, rows: 1 } }
               - { component: day-name, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
   - id: graph
-    name: Counter history
-    description: Watch counter values over time using graph and oscilloscope views.
+    name: Data plots
+    description: Compare graph, scope, and scatter views.
     views:
       - id: overview
         name: Overview
@@ -411,9 +438,10 @@ functions:
             placements:
               - { component: counter-graph, layout: { column: 1, row: 1, columns: 12, rows: 5 } }
               - { component: counter-scope, layout: { column: 1, row: 6, columns: 12, rows: 6 } }
+              - { component: input-scatter, layout: { column: 1, row: 12, columns: 8, rows: 5 } }
   - id: table
     name: Editable records
-    description: View, sort, and edit example records stored on the test device.
+    description: Sort and edit device records.
     views:
       - id: overview
         name: Overview
@@ -424,7 +452,7 @@ functions:
               - { component: example-table, layout: { column: 1, row: 1, columns: 12, rows: 5 } }
   - id: hex-editor
     name: Device memory
-    description: Inspect and edit the device's 64-byte memory in hex, binary, or ASCII.
+    description: Inspect and edit device bytes.
     views:
       - id: overview
         name: Overview
@@ -435,7 +463,7 @@ functions:
               - { component: memory-editor, layout: { column: 1, row: 1, columns: 12, rows: 6 } }
   - id: lookup-tables
     name: Lookup tables
-    description: Edit 1D or 2D tables.
+    description: Edit 1D and 2D tables.
     views:
       - id: overview
         name: Overview
@@ -465,3 +493,7 @@ dashboard:
     - counter-scope
     - example-curve
     - example-map
+    - boolean-choice
+    - float-linear-gauge
+    - counter-range
+    - input-scatter
