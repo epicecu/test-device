@@ -11,6 +11,12 @@
 #endif
 
 /* Enum definitions */
+typedef enum _fixtures_test_OperatingMode {
+    fixtures_test_OperatingMode_OPERATING_MODE_OFF = 0,
+    fixtures_test_OperatingMode_OPERATING_MODE_MANUAL = 1,
+    fixtures_test_OperatingMode_OPERATING_MODE_AUTOMATIC = 2
+} fixtures_test_OperatingMode;
+
 typedef enum _fixtures_test_TableStatus {
     fixtures_test_TableStatus_TABLE_STATUS_UNSPECIFIED = 0,
     fixtures_test_TableStatus_TABLE_STATUS_ACTIVE = 1,
@@ -47,6 +53,7 @@ typedef struct _fixtures_test_Share5 {
     int32_t portNumber;
     char dateTime[32];
     bool booleanValue;
+    fixtures_test_OperatingMode operatingMode;
 } fixtures_test_Share5;
 
 typedef struct _fixtures_test_Share6 {
@@ -87,6 +94,10 @@ extern "C" {
 #endif
 
 /* Helper constants for enums */
+#define _fixtures_test_OperatingMode_MIN fixtures_test_OperatingMode_OPERATING_MODE_OFF
+#define _fixtures_test_OperatingMode_MAX fixtures_test_OperatingMode_OPERATING_MODE_AUTOMATIC
+#define _fixtures_test_OperatingMode_ARRAYSIZE ((fixtures_test_OperatingMode)(fixtures_test_OperatingMode_OPERATING_MODE_AUTOMATIC+1))
+
 #define _fixtures_test_TableStatus_MIN fixtures_test_TableStatus_TABLE_STATUS_UNSPECIFIED
 #define _fixtures_test_TableStatus_MAX fixtures_test_TableStatus_TABLE_STATUS_SUSPENDED
 #define _fixtures_test_TableStatus_ARRAYSIZE ((fixtures_test_TableStatus)(fixtures_test_TableStatus_TABLE_STATUS_SUSPENDED+1))
@@ -95,6 +106,7 @@ extern "C" {
 
 
 
+#define fixtures_test_Share5_operatingMode_ENUMTYPE fixtures_test_OperatingMode
 
 
 
@@ -108,7 +120,7 @@ extern "C" {
 #define fixtures_test_Share2_init_default        {0, 0, 0, 0}
 #define fixtures_test_Share3_init_default        {0}
 #define fixtures_test_Share4_init_default        {""}
-#define fixtures_test_Share5_init_default        {0, 0, "", 0, "", 0}
+#define fixtures_test_Share5_init_default        {0, 0, "", 0, "", 0, _fixtures_test_OperatingMode_MIN}
 #define fixtures_test_Share6_init_default        {0}
 #define fixtures_test_Share7_init_default        {{0, {0}}}
 #define fixtures_test_TableRow_init_default      {0, "", "", 0, 0, _fixtures_test_TableStatus_MIN}
@@ -118,7 +130,7 @@ extern "C" {
 #define fixtures_test_Share2_init_zero           {0, 0, 0, 0}
 #define fixtures_test_Share3_init_zero           {0}
 #define fixtures_test_Share4_init_zero           {""}
-#define fixtures_test_Share5_init_zero           {0, 0, "", 0, "", 0}
+#define fixtures_test_Share5_init_zero           {0, 0, "", 0, "", 0, _fixtures_test_OperatingMode_MIN}
 #define fixtures_test_Share6_init_zero           {0}
 #define fixtures_test_Share7_init_zero           {{0, {0}}}
 #define fixtures_test_TableRow_init_zero         {0, "", "", 0, 0, _fixtures_test_TableStatus_MIN}
@@ -141,6 +153,7 @@ extern "C" {
 #define fixtures_test_Share5_portNumber_tag      4
 #define fixtures_test_Share5_dateTime_tag        5
 #define fixtures_test_Share5_booleanValue_tag    6
+#define fixtures_test_Share5_operatingMode_tag   7
 #define fixtures_test_Share6_dayOfTheWeek_tag    1
 #define fixtures_test_Share7_memory_tag          1
 #define fixtures_test_TableRow_id_tag            1
@@ -187,7 +200,8 @@ X(a, STATIC,   SINGULAR, DOUBLE,   doubleNumber,      2) \
 X(a, STATIC,   SINGULAR, STRING,   ipAddress,         3) \
 X(a, STATIC,   SINGULAR, SFIXED32, portNumber,        4) \
 X(a, STATIC,   SINGULAR, STRING,   dateTime,          5) \
-X(a, STATIC,   SINGULAR, BOOL,     booleanValue,      6)
+X(a, STATIC,   SINGULAR, BOOL,     booleanValue,      6) \
+X(a, STATIC,   SINGULAR, UENUM,    operatingMode,     7)
 #define fixtures_test_Share5_CALLBACK NULL
 #define fixtures_test_Share5_DEFAULT NULL
 
@@ -256,7 +270,7 @@ extern const pb_msgdesc_t fixtures_test_Share9_msg;
 #define fixtures_test_Share2_size                20
 #define fixtures_test_Share3_size                5
 #define fixtures_test_Share4_size                65
-#define fixtures_test_Share5_size                95
+#define fixtures_test_Share5_size                97
 #define fixtures_test_Share6_size                5
 #define fixtures_test_Share7_size                66
 #define fixtures_test_Share8_size                328

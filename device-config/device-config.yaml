@@ -1,7 +1,7 @@
 formatVersion: 1
 interfaceVersion: 1
 configId: 1001
-configVersion: 4
+configVersion: 5
 metadata:
   productName: Test Device
   productBrand: EpicECU
@@ -74,6 +74,7 @@ dataModels:
       - { id: port-number, field: portNumber, type: int32, writable: true, unit: metre, sample: 8080, constraints: { minimum: 0, maximum: 65535 } }
       - { id: date-time, field: dateTime, type: string, writable: true, sample: '2023-08-01T00:00:00Z' }
       - { id: boolean-value, field: booleanValue, type: boolean, writable: true, sample: true }
+      - { id: operating-mode, field: operatingMode, type: enumeration, writable: true }
   - id: selection
     shareId: 6
     messageType: fixtures.test.Share6
@@ -186,7 +187,7 @@ components:
       fallback: { label: Outside example range, state: neutral }
   - { id: float-number, type: text-field, required: true, label: Float number, accessibility: { name: Float number, group: general }, binding: general.float-number, formatter: number-basic, data: { commit: blur } }
   - { id: float-number-slider, type: slider, required: true, label: Float number slider, help: Adjusts the shared float value from 0 to 100., accessibility: { name: Float number slider, group: general }, binding: general.float-number, formatter: number-basic, data: { minimum: 0, maximum: 100, step: 0.05 } }
-  - { id: boolean-choice, type: segmented-choice, required: true, label: Boolean choice, accessibility: { name: Boolean segmented choice, group: general }, binding: general.boolean-value, data: { commit: immediate, options: [{ value: false, label: 'Off' }, { value: true, label: 'On' }] } }
+  - { id: operating-mode-choice, type: segmented-choice, required: true, label: Operating mode, accessibility: { name: Operating mode, group: general }, binding: general.operating-mode, data: { commit: immediate, options: [{ value: OPERATING_MODE_OFF, label: 'Off' }, { value: OPERATING_MODE_MANUAL, label: 'Manual' }, { value: OPERATING_MODE_AUTOMATIC, label: 'Automatic' }] } }
   - { id: float-linear-gauge, type: linear-gauge, required: true, label: Float level, accessibility: { name: Float linear gauge, group: general }, binding: general.float-number, formatter: number-basic, data: { minimum: 0, maximum: 100, fill: { style: striped, colour: blue } } }
   - { id: double-number, type: text-field, required: true, label: Double number, accessibility: { name: Double number, group: general }, binding: general.double-number, data: { commit: blur } }
   - { id: ip-address, type: text-field, required: true, label: IP address, accessibility: { name: IP address, group: general }, binding: general.ip-address, data: { commit: blur } }
@@ -380,11 +381,11 @@ functions:
             name: Counter
             editMode: form
             placements:
-              - { component: starting-number, layout: { column: 1, row: 1, columns: 4, rows: 1 } }
-              - { component: counter-value, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
-              - { component: ending-number, layout: { column: 9, row: 1, columns: 4, rows: 1 } }
-              - { component: counter-status, layout: { column: 5, row: 2, columns: 4, rows: 1 } }
-              - { component: counter-range, layout: { column: 1, row: 3, columns: 8, rows: 2 } }
+              - { component: starting-number, layout: { column: 1, row: 1, columns: 3, rows: 1 } }
+              - { component: ending-number, layout: { column: 4, row: 1, columns: 3, rows: 1 } }
+              - { component: counter-value, layout: { column: 7, row: 1, columns: 3, rows: 1 } }
+              - { component: counter-range, layout: { column: 1, row: 2, columns: 6, rows: 2 } }
+              - { component: counter-status, layout: { column: 7, row: 2, columns: 3, rows: 1 } }
   - id: string
     name: Text controls
     description: Edit and compare shared text.
@@ -393,12 +394,12 @@ functions:
         name: Overview
         sections:
           - id: string
-            name: String
+            name: Message comparison
             placements:
-              - { component: welcome-message, layout: { column: 1, row: 1, columns: 6, rows: 1 } }
-              - { component: welcome-message-multiline, layout: { column: 1, row: 2, columns: 6, rows: 2 } }
-              - { component: welcome-message-label, layout: { column: 1, row: 4, columns: 6, rows: 1 } }
-              - { component: developer-label, layout: { column: 1, row: 5, columns: 6, rows: 1 } }
+              - { component: welcome-message, layout: { column: 1, row: 1, columns: 4, rows: 1 } }
+              - { component: welcome-message-label, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
+              - { component: welcome-message-multiline, layout: { column: 1, row: 2, columns: 4, rows: 2 } }
+              - { component: developer-label, layout: { column: 5, row: 2, columns: 4, rows: 1 } }
   - id: general
     name: Input controls
     description: Try common values and controls.
@@ -407,25 +408,31 @@ functions:
         name: Overview
         sections:
           - id: items
-            name: Items
+            name: Values
             placements:
-              - { component: float-number, layout: { column: 1, row: 1, columns: 4, rows: 1 } }
-              - { component: double-number, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
-              - { component: ip-address, layout: { column: 9, row: 1, columns: 4, rows: 1 } }
-              - { component: port-number, layout: { column: 1, row: 2, columns: 4, rows: 1 } }
-              - { component: date-time, layout: { column: 5, row: 2, columns: 4, rows: 1 } }
-              - { component: boolean-value, layout: { column: 9, row: 2, columns: 4, rows: 1 } }
-              - { component: boolean-checkbox, layout: { column: 1, row: 3, columns: 4, rows: 1 } }
-              - { component: set-boolean-true, layout: { column: 5, row: 3, columns: 4, rows: 1 } }
-              - { component: boolean-status, layout: { column: 9, row: 3, columns: 4, rows: 1 } }
-              - { component: float-number-slider, layout: { column: 1, row: 4, columns: 8, rows: 1 } }
-              - { component: boolean-choice, layout: { column: 1, row: 5, columns: 6, rows: 1 } }
-              - { component: float-linear-gauge, layout: { column: 7, row: 5, columns: 6, rows: 1 } }
+              - { component: double-number, layout: { column: 1, row: 1, columns: 3, rows: 1 } }
+              - { component: ip-address, layout: { column: 4, row: 1, columns: 3, rows: 1 } }
+              - { component: port-number, layout: { column: 7, row: 1, columns: 3, rows: 1 } }
+              - { component: date-time, layout: { column: 10, row: 1, columns: 3, rows: 1 } }
+          - id: float-controls
+            name: Float controls
+            placements:
+              - { component: float-number, layout: { column: 1, row: 1, columns: 3, rows: 1 } }
+              - { component: float-number-slider, layout: { column: 4, row: 1, columns: 5, rows: 1 } }
+              - { component: float-linear-gauge, layout: { column: 9, row: 1, columns: 4, rows: 1 } }
+          - id: boolean-controls
+            name: Boolean controls
+            placements:
+              - { component: boolean-value, layout: { column: 1, row: 1, columns: 3, rows: 1 } }
+              - { component: boolean-checkbox, layout: { column: 4, row: 1, columns: 3, rows: 1 } }
+              - { component: set-boolean-true, layout: { column: 7, row: 1, columns: 3, rows: 1 } }
+              - { component: boolean-status, layout: { column: 10, row: 1, columns: 3, rows: 1 } }
           - id: select-combobox
-            name: Select/Combobox
+            name: Selection controls
             placements:
               - { component: day-number, layout: { column: 1, row: 1, columns: 4, rows: 1 } }
               - { component: day-name, layout: { column: 5, row: 1, columns: 4, rows: 1 } }
+              - { component: operating-mode-choice, layout: { column: 9, row: 1, columns: 4, rows: 1 } }
   - id: graph
     name: Data plots
     description: Compare graph, scope, and scatter views.
@@ -434,11 +441,17 @@ functions:
         name: Overview
         sections:
           - id: counter-history
-            name: Counter history
+            name: History
             placements:
-              - { component: counter-graph, layout: { column: 1, row: 1, columns: 12, rows: 5 } }
-              - { component: counter-scope, layout: { column: 1, row: 6, columns: 12, rows: 6 } }
-              - { component: input-scatter, layout: { column: 1, row: 12, columns: 8, rows: 5 } }
+              - { component: counter-graph, layout: { column: 1, row: 1, columns: 8, rows: 5 } }
+          - id: counter-scope
+            name: Oscilloscope
+            placements:
+              - { component: counter-scope, layout: { column: 1, row: 1, columns: 8, rows: 6 } }
+          - id: input-scatter
+            name: XY comparison
+            placements:
+              - { component: input-scatter, layout: { column: 1, row: 1, columns: 8, rows: 5 } }
   - id: table
     name: Editable records
     description: Sort and edit device records.
@@ -469,10 +482,13 @@ functions:
         name: Overview
         sections:
           - id: calibration
-            name: Lookup examples
+            name: 1D table
             placements:
               - { component: example-curve, layout: { column: 1, row: 1, columns: 8, rows: 3 } }
-              - { component: example-map, layout: { column: 1, row: 4, columns: 8, rows: 5 } }
+          - id: lookup-map
+            name: 2D table
+            placements:
+              - { component: example-map, layout: { column: 1, row: 1, columns: 8, rows: 5 } }
 dashboard:
   enabled: true
   allowedComponents:
@@ -493,7 +509,7 @@ dashboard:
     - counter-scope
     - example-curve
     - example-map
-    - boolean-choice
+    - operating-mode-choice
     - float-linear-gauge
     - counter-range
     - input-scatter
