@@ -71,7 +71,7 @@ tasks:
   cloud:status:
     desc: Show environment-bound synchronisation state and the next safe action
     cmds:
-      - programmor-cli project status
+      - programmor-cli status
 
   cloud:pull:
     desc: Pull Cloud source with conflict preservation
