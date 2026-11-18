@@ -184,6 +184,7 @@ bool programmor_test_device_init(programmor_test_device_t *device,
   device->share5.portNumber = 8080;
   strcpy(device->share5.dateTime, "2023-08-01T00:00:00Z");
   device->share5.booleanValue = true;
+  device->share5.operatingMode = fixtures_test_OperatingMode_OPERATING_MODE_OFF;
   device->share6.dayOfTheWeek = 1;
   device->share7.memory.size = PROGRAMMOR_TEST_DEVICE_MEMORY_BYTES;
   for (index = 0u; index < PROGRAMMOR_TEST_DEVICE_MEMORY_BYTES; ++index) {
@@ -352,7 +353,9 @@ bool programmor_test_device_publish(programmor_test_device_t *device,
         !isfinite(value.floatNumber) || !isfinite(value.doubleNumber) ||
         value.floatNumber < 0.0F || value.floatNumber > 100.0F ||
         !valid_float_step(value.floatNumber) || value.portNumber < 0 ||
-        value.portNumber > 65535) {
+        value.portNumber > 65535 ||
+        value.operatingMode >
+            fixtures_test_OperatingMode_OPERATING_MODE_AUTOMATIC) {
       return false;
     }
     device->share5 = value;

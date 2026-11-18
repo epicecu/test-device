@@ -79,6 +79,7 @@ firmware review and release evidence. Sign in with the Programmor CLI, then use
 this sequence:
 
 ```sh
+programmor-cli version
 programmor-cli status
 programmor-cli pull
 # Review and edit device-config/ and firmware together.
@@ -88,11 +89,13 @@ programmor-cli push
 ```
 
 Always pull before editing when Cloud may have changed. The CLI preserves
-conflicts instead of merging them. `programmor-cli check` performs transient
-Cloud validation and changes no Cloud state. `programmor-cli push` is the
-explicit durable save, revision, validation, unsigned development-package and
-activation workflow. Neither command publishes Config 1001 to the public
-catalogue.
+conflicts instead of merging them. This workflow requires CLI 0.2.1 or later;
+`project status` remains available as a compatibility spelling. In this command
+set, `programmor-cli check` uploads the exact local snapshot for transient Cloud
+validation without saving the workspace, creating an immutable revision or
+changing the active development build. `programmor-cli push` is the explicit
+durable save, revision, validation, unsigned development-package and activation
+workflow. Neither command publishes Config 1001 to the public catalogue.
 
 See [the Config 1001 source note](device-config/README.md) for the authority and
 release-reconciliation boundary.

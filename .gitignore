@@ -2,6 +2,7 @@
 .pio/
 .programmor-conflicts/
 .venv/
+.vscode/
 build/
 compile_commands.json
 dependencies/

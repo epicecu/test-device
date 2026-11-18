@@ -39,6 +39,8 @@ PB_BIND(fixtures_test_Share9, fixtures_test_Share9, 2)
 
 
 
+
+
 #ifndef PB_CONVERT_DOUBLE_FLOAT
 /* On some platforms (such as AVR), double is really float.
  * To be able to encode/decode double on these platforms, you need.

@@ -23,12 +23,14 @@ static void test_defaults_and_requests(void) {
   assert(programmor_test_device_init(&device, 123456u, 1000u, 0u));
   assert(device.common.registry_id == 1001u);
   assert(device.common.shares_version == PROGRAMMOR_TEST_DEVICE_CONFIG_VERSION);
-  assert(PROGRAMMOR_TEST_DEVICE_CONFIG_VERSION == 4u);
+  assert(PROGRAMMOR_TEST_DEVICE_CONFIG_VERSION == 5u);
   assert(device.common.firmware_version == 1000u);
   assert(device.common.serial_number == 123456u);
   assert(strcmp(device.common.device_name, "Programmor Test Device") == 0);
   assert(device.share7.memory.size == 64u);
   assert(device.share8.rows_count == 4u);
+  assert(device.share5.operatingMode ==
+         fixtures_test_OperatingMode_OPERATING_MODE_OFF);
   assert(fabsf(device.curve_output - 35.0F) < 0.001F);
   assert(fabsf(device.map_output - 32.0F) < 0.001F);
 
@@ -74,6 +76,22 @@ static void test_atomic_publications(void) {
                                        sizeof(payload), &size));
   assert(!programmor_test_device_publish(&device, false, 5u, payload, size));
   assert(device.share5.floatNumber == 23.45F);
+
+  source.share5.floatNumber = 23.45F;
+  source.share5.operatingMode =
+      fixtures_test_OperatingMode_OPERATING_MODE_AUTOMATIC;
+  assert(programmor_test_device_encode(&source, false, 5u, payload,
+                                       sizeof(payload), &size));
+  assert(programmor_test_device_publish(&device, false, 5u, payload, size));
+  assert(device.share5.operatingMode ==
+         fixtures_test_OperatingMode_OPERATING_MODE_AUTOMATIC);
+
+  source.share5.operatingMode = (fixtures_test_OperatingMode)99;
+  assert(programmor_test_device_encode(&source, false, 5u, payload,
+                                       sizeof(payload), &size));
+  assert(!programmor_test_device_publish(&device, false, 5u, payload, size));
+  assert(device.share5.operatingMode ==
+         fixtures_test_OperatingMode_OPERATING_MODE_AUTOMATIC);
 
   source.share8.rows[1].id = source.share8.rows[0].id;
   size = encode(fixtures_test_Share8_fields, &source.share8, payload,

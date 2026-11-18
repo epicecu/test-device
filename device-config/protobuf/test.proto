@@ -8,7 +8,8 @@ message Share1 { sfixed32 startingNumber = 1; sfixed32 endingNumber = 2; sfixed3
 message Share2 { fixed32 frequencyInputPinId = 1; fixed32 digitalOutputPinId = 2; fixed32 analogInputAPinId = 3; fixed32 analogInputBPinId = 4; }
 message Share3 { sfixed32 loopsPerSecond = 1; }
 message Share4 { string welcomeText = 1; }
-message Share5 { float floatNumber = 1; double doubleNumber = 2; string ipAddress = 3; sfixed32 portNumber = 4; string dateTime = 5; bool booleanValue = 6; }
+enum OperatingMode { OPERATING_MODE_OFF = 0; OPERATING_MODE_MANUAL = 1; OPERATING_MODE_AUTOMATIC = 2; }
+message Share5 { float floatNumber = 1; double doubleNumber = 2; string ipAddress = 3; sfixed32 portNumber = 4; string dateTime = 5; bool booleanValue = 6; OperatingMode operatingMode = 7; }
 message Share6 { sfixed32 dayOfTheWeek = 1; }
 message Share7 { bytes memory = 1; }
 enum TableStatus { TABLE_STATUS_UNSPECIFIED = 0; TABLE_STATUS_ACTIVE = 1; TABLE_STATUS_PENDING = 2; TABLE_STATUS_SUSPENDED = 3; }
