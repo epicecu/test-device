@@ -23,7 +23,7 @@ static void test_defaults_and_requests(void) {
   assert(programmor_test_device_init(&device, 123456u, 1000u, 0u));
   assert(device.common.registry_id == 1001u);
   assert(device.common.shares_version == PROGRAMMOR_TEST_DEVICE_CONFIG_VERSION);
-  assert(PROGRAMMOR_TEST_DEVICE_CONFIG_VERSION == 5u);
+  assert(PROGRAMMOR_TEST_DEVICE_CONFIG_VERSION == 6u);
   assert(device.common.firmware_version == 1000u);
   assert(device.common.serial_number == 123456u);
   assert(strcmp(device.common.device_name, "Programmor Test Device") == 0);

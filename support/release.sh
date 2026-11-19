@@ -40,12 +40,17 @@ validate() {
 }
 
 package() {
-  source="$root/.pio/build/teensy41/firmware.hex"
-  destination="$root/release/programmor-test-device-teensy41-v$version.hex"
-  test -f "$source"
+  hid_source="$root/.pio/build/teensy41/firmware.hex"
+  serial_source="$root/.pio/build/teensy41-serial/firmware.hex"
+  hid_destination="$root/release/programmor-test-device-teensy41-rawhid-v$version.hex"
+  serial_destination="$root/release/programmor-test-device-teensy41-serial-v$version.hex"
+  test -f "$hid_source"
+  test -f "$serial_source"
   mkdir -p "$root/release"
-  cp "$source" "$destination"
-  (cd "$root/release" && sha256sum "$(basename "$destination")" > "$(basename "$destination").sha256")
+  cp "$hid_source" "$hid_destination"
+  cp "$serial_source" "$serial_destination"
+  (cd "$root/release" && sha256sum "$(basename "$hid_destination")" > "$(basename "$hid_destination").sha256")
+  (cd "$root/release" && sha256sum "$(basename "$serial_destination")" > "$(basename "$serial_destination").sha256")
 }
 
 case "${1:-}" in

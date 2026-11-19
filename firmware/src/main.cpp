@@ -2,6 +2,12 @@
 #include <Arduino.h>
 #include <corelib/device.hpp>
 
+#if defined(PROGRAMMOR_TRANSPORT_SERIAL)
+extern "C" {
+#include <corelib/serial.h>
+}
+#endif
+
 #include <cstring>
 
 extern "C" {
@@ -22,6 +28,9 @@ static_assert(kMaximumMessageBytes >=
 corelib::Device<kMaximumMessageBytes, 2, 32, kPendingRequests> core;
 programmor_test_device_t device;
 uint8_t incoming_frame[CORELIB_FRAME_SIZE];
+#if defined(PROGRAMMOR_TRANSPORT_SERIAL)
+corelib_serial_decoder_t serial_decoder{};
+#endif
 corelib_transaction_id_t requests[kPendingRequests];
 size_t request_head;
 size_t request_count;
@@ -51,11 +60,23 @@ corelib_send_result_t send_frame(void *, corelib_link_id_t link_id, void *,
   if (link_id != kLinkId) {
     return CORELIB_SEND_FAILED;
   }
+#if defined(PROGRAMMOR_TRANSPORT_SERIAL)
+  uint8_t encoded[CORELIB_SERIAL_WIRE_SIZE];
+  const size_t encoded_size = corelib_serial_encode(frame, encoded);
+  if (encoded_size == 0u ||
+      static_cast<size_t>(Serial.availableForWrite()) < encoded_size) {
+    return CORELIB_SEND_BUSY;
+  }
+  return Serial.write(encoded, encoded_size) == encoded_size
+             ? CORELIB_SEND_ACCEPTED
+             : CORELIB_SEND_FAILED;
+#else
   const int result = RawHID.send(frame, 0);
   if (result == CORELIB_FRAME_SIZE) {
     return CORELIB_SEND_ACCEPTED;
   }
   return result == 0 ? CORELIB_SEND_BUSY : CORELIB_SEND_FAILED;
+#endif
 }
 
 void transaction_received(void *, const corelib_transaction_t *value) {
@@ -118,6 +139,9 @@ void service_request() {
 
 void setup() {
   pinMode(kLedPin, OUTPUT);
+#if defined(PROGRAMMOR_TRANSPORT_SERIAL)
+  Serial.begin(115200);
+#endif
   const uint32_t serial = hardware_serial();
   if (!programmor_test_device_init(&device, serial, PROGRAMMOR_FIRMWARE_VERSION,
                                    millis())) {
@@ -136,9 +160,26 @@ void setup() {
 
 void loop() {
   const uint64_t now_ms = millis();
+#if defined(PROGRAMMOR_TRANSPORT_SERIAL)
+  constexpr size_t kMaximumSerialBytesPerLoop = 2u * CORELIB_SERIAL_WIRE_SIZE;
+  size_t processed = 0u;
+  while (Serial.available() > 0 && processed < kMaximumSerialBytesPerLoop) {
+    const int value = Serial.read();
+    if (value < 0) {
+      break;
+    }
+    ++processed;
+    const corelib_serial_result_t result = corelib_serial_decoder_push(
+        &serial_decoder, static_cast<uint8_t>(value), incoming_frame);
+    if (result == CORELIB_SERIAL_FRAME) {
+      (void)core.receive(kLinkId, incoming_frame, now_ms);
+    }
+  }
+#else
   if (RawHID.recv(incoming_frame, 0) == CORELIB_FRAME_SIZE) {
     (void)core.receive(kLinkId, incoming_frame, now_ms);
   }
+#endif
   programmor_test_device_tick(&device, now_ms);
   service_request();
   (void)core.tick(now_ms);

@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           repository: epicecu/corelib
-          ref: 5a8d97667851cc6ead26b7e26325d9a58ba957f1
+          ref: 52c6ab3ca61ca5de71259e53525eae7ef63bbac1
           path: dependencies/corelib
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
@@ -44,3 +44,4 @@ jobs:
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       - run: python -m json.tool tests/adapter-e2e.json >/dev/null
+      - run: python -m json.tool tests/adapter-e2e-serial.json >/dev/null

@@ -1,0 +1,677 @@
+{
+  "version": 1,
+  "name": "Programmor Test Device Teensy 4.1 USB serial acceptance",
+  "adapter": {
+    "package": "serial-adapter",
+    "args": [
+      "--insecure",
+      "--dev",
+      "--port",
+      "0"
+    ]
+  },
+  "tests": {
+    "challenge": {
+      "response": {
+        "name": "auth.challenge",
+        "data": {
+          "processInstanceId": {
+            "$capture": "process_id",
+            "match": "uuid4"
+          },
+          "serverNonce": {
+            "$capture": "server_nonce",
+            "match": "base64url32"
+          }
+        }
+      }
+    },
+    "authenticate": {
+      "send": {
+        "type": "request",
+        "name": "auth.authenticate",
+        "id": {
+          "$generate": "uuid4",
+          "as": "auth_id"
+        },
+        "data": {
+          "processInstanceId": {
+            "$ref": "process_id"
+          },
+          "supportedVersions": [
+            "1.0"
+          ],
+          "serverNonce": {
+            "$ref": "server_nonce"
+          },
+          "clientNonce": {
+            "$generate": "base64url32"
+          },
+          "clientProof": {
+            "$authProof": "client"
+          }
+        }
+      },
+      "response": {
+        "name": "auth.authenticate",
+        "id": {
+          "$ref": "auth_id"
+        },
+        "data": {
+          "serverProof": {
+            "$authProof": "server"
+          }
+        }
+      }
+    },
+    "hello": {
+      "send": {
+        "type": "request",
+        "name": "protocol.hello",
+        "id": {
+          "$generate": "uuid4",
+          "as": "hello_id"
+        },
+        "data": {
+          "appVersion": "0.1.0-test-device",
+          "adapterConfiguration": {
+            "maximumPorts": 64
+          }
+        }
+      },
+      "response": [
+        {
+          "name": "protocol.hello",
+          "id": {
+            "$ref": "hello_id"
+          },
+          "data": {
+            "connectionMethods": [
+              "serial"
+            ]
+          }
+        },
+        {
+          "name": "adapter.ready"
+        }
+      ]
+    },
+    "discover-and-connect": {
+      "send": {
+        "type": "request",
+        "name": "discovery.start",
+        "id": {
+          "$generate": "uuid4",
+          "as": "discovery_id"
+        },
+        "data": {
+          "match": [
+            {
+              "connectionMethod": "serial",
+              "mode": "usb",
+              "vendorId": 5824,
+              "productId": 1155,
+              "settings": {
+                "baudRate": 115200,
+                "dataBits": 8,
+                "parity": "none",
+                "stopBits": 1,
+                "flowControl": "none"
+              },
+              "openDelayMs": 0
+            }
+          ],
+          "continuous": false,
+          "establishTopology": true
+        }
+      },
+      "response": [
+        {
+          "name": "discovery.start",
+          "id": {
+            "$ref": "discovery_id"
+          },
+          "data": {
+            "devices": [
+              {
+                "connectionMethod": "serial",
+                "vendorId": 5824,
+                "productId": 1155
+              }
+            ]
+          }
+        },
+        {
+          "name": "connection.changed",
+          "data": {
+            "connectionId": {
+              "$capture": "connection_id",
+              "match": "uuid4"
+            },
+            "state": "connected"
+          }
+        },
+        {
+          "name": "node.added",
+          "data": {
+            "nodeId": {
+              "$capture": "node_id",
+              "match": "uuid4"
+            },
+            "connectionId": {
+              "$ref": "connection_id"
+            },
+            "address": 2
+          }
+        }
+      ],
+      "receiveTimeoutMs": 5000
+    },
+    "request-common": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "common_id"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "common",
+          "shareId": 1,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "common_id"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "nodeId": {
+              "$ref": "node_id"
+            },
+            "kind": "common",
+            "shareId": 1,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            },
+            "checksum": {
+              "$match": "string"
+            }
+          }
+        }
+      ]
+    },
+    "request-share-1": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "share_1"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 1,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "share_1"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 1,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            }
+          }
+        }
+      ]
+    },
+    "request-share-2": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "share_2"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 2,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "share_2"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 2,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            }
+          }
+        }
+      ]
+    },
+    "request-share-3": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "share_3"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 3,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "share_3"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 3,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            }
+          }
+        }
+      ]
+    },
+    "request-share-4": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "share_4"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 4,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "share_4"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 4,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            }
+          }
+        }
+      ]
+    },
+    "request-share-5": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "share_5"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 5,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "share_5"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 5,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            }
+          }
+        }
+      ]
+    },
+    "request-share-6": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "share_6"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 6,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "share_6"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 6,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            }
+          }
+        }
+      ]
+    },
+    "request-share-7": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "share_7"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 7,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "share_7"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 7,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            }
+          }
+        }
+      ]
+    },
+    "request-share-8": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "share_8"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 8,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "share_8"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 8,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            }
+          }
+        }
+      ]
+    },
+    "request-share-9-multiframe": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "share_9"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 9,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "share_9"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 9,
+            "result": "success",
+            "payload": {
+              "$match": "string"
+            }
+          }
+        }
+      ],
+      "receiveTimeoutMs": 3000
+    },
+    "subscribe-counter": {
+      "send": {
+        "type": "request",
+        "name": "subscription.set",
+        "id": {
+          "$generate": "uuid4",
+          "as": "subscription_request"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 1,
+          "intervalMs": 100,
+          "responseTimeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "subscription.set",
+          "id": {
+            "$ref": "subscription_request"
+          },
+          "data": {
+            "subscriptionId": {
+              "$capture": "subscription_id",
+              "match": "uuid4"
+            }
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 1,
+            "result": "success"
+          }
+        }
+      ]
+    },
+    "clear-counter": {
+      "send": {
+        "type": "request",
+        "name": "subscription.clear",
+        "id": {
+          "$generate": "uuid4",
+          "as": "clear_id"
+        },
+        "data": {
+          "subscriptionId": {
+            "$ref": "subscription_id"
+          }
+        }
+      },
+      "response": {
+        "name": "subscription.clear",
+        "id": {
+          "$ref": "clear_id"
+        }
+      }
+    },
+    "unknown-share": {
+      "send": {
+        "type": "request",
+        "name": "message.request",
+        "id": {
+          "$generate": "uuid4",
+          "as": "unknown_id"
+        },
+        "data": {
+          "nodeId": {
+            "$ref": "node_id"
+          },
+          "kind": "share",
+          "shareId": 99,
+          "timeoutMs": 1000
+        }
+      },
+      "response": [
+        {
+          "name": "message.request",
+          "id": {
+            "$ref": "unknown_id"
+          }
+        },
+        {
+          "name": "message.received",
+          "data": {
+            "shareId": 99,
+            "result": "unsupported"
+          }
+        }
+      ]
+    },
+    "disconnect": {
+      "send": {
+        "type": "request",
+        "name": "connection.disconnect",
+        "id": {
+          "$generate": "uuid4",
+          "as": "disconnect_id"
+        },
+        "data": {
+          "connectionId": {
+            "$ref": "connection_id"
+          },
+          "reason": "Test Device acceptance complete"
+        }
+      },
+      "response": [
+        {
+          "name": "connection.disconnect",
+          "id": {
+            "$ref": "disconnect_id"
+          },
+          "data": {
+            "state": "disconnected"
+          }
+        },
+        {
+          "name": "node.removed",
+          "data": {
+            "nodeId": {
+              "$ref": "node_id"
+            }
+          }
+        },
+        {
+          "name": "connection.changed",
+          "data": {
+            "connectionId": {
+              "$ref": "connection_id"
+            },
+            "state": "disconnected"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -2,8 +2,8 @@
 
 The Programmor Test Device is the official open-source firmware for exercising
 the Programmor App with a real microcontroller. It runs on a Teensy 4.1,
-connects through USB RawHID, identifies as Configuration 1001, and implements
-all nine demonstration Shares.
+connects through USB RawHID or USB serial, identifies as Configuration 1001,
+and implements all nine demonstration Shares.
 
 The repository keeps a reviewed public example of Config 1001 beside the
 firmware. Programmor Cloud is the authoritative online source; `programmor.yaml`
@@ -15,20 +15,22 @@ or build output.
 
 - PJRC Teensy 4.1
 - USB RawHID `16c0:0486`
-- Programmor Config 1001, development version 3
+- USB serial `16c0:0483`
+- Programmor Config 1001, development version 6
 
-Pico, USB Serial and Ethernet are not supported by firmware `v0.1.0`.
+Ethernet is not supported by firmware `v0.2.0`.
 
 ## Flash a release
 
-1. Download the `.hex` and matching `.sha256` from the GitHub Release.
+1. Download the RawHID or serial `.hex` and matching `.sha256` from the GitHub
+   Release.
 2. Verify it with `sha256sum --check <file>.sha256`.
 3. Open the official PJRC Teensy Loader, select the `.hex`, connect a Teensy
    4.1 and program it. Press the board's PROGRAM button if the loader asks.
 
 The `.hex` is data and does not need executable permissions. Linux users must
 install PJRC's Teensy udev rules before the loader can access the board.
-Reflashing a newer release is the update process; firmware `v0.1.0` does not
+Reflashing a newer release is the update process; firmware `v0.2.0` does not
 self-update.
 
 After boot, three short LED flashes indicate successful initialisation. A
@@ -43,10 +45,13 @@ microcontroller dependencies are pinned locally.
 task setup
 task all
 task upload
+task upload:serial
 ```
 
-`task upload` uses PlatformIO's headless Teensy loader. The Teensy may require
-one physical PROGRAM-button press when first entering loader mode.
+`task all` builds both transport images. `task upload` and `task upload:hid`
+upload RawHID; `task upload:serial` uploads USB serial. Each command uses
+PlatformIO's headless Teensy loader. The Teensy may require one physical
+PROGRAM-button press when first entering loader mode.
 
 The firmware integrates:
 
@@ -62,6 +67,8 @@ Neither protocol handling nor lookup-table validation is reimplemented here.
 ```sh
 task test
 task build
+task build:hid
+task build:serial
 ```
 
 Native tests exercise every Share and invalid-update preservation. The physical
@@ -70,6 +77,7 @@ workspace and a connected, freshly programmed Teensy:
 
 ```sh
 task e2e PROGRAMMOR_ADAPTERS_DIR=../programmor-adapters-private
+task e2e:serial PROGRAMMOR_ADAPTERS_DIR=../programmor-adapters-private
 ```
 
 ## Synchronise Config 1001
@@ -106,8 +114,8 @@ It intentionally has no user OAuth credentials and cannot push to Cloud.
 ## Version identity
 
 Firmware SemVer is stored in `VERSION`. Common1 encodes it as
-`major * 1,000,000 + minor * 1,000 + patch`; release `v0.1.0` therefore reports
-`1000`. Development firmware reports `shares_version = 3`, matching the
+`major * 1,000,000 + minor * 1,000 + patch`; release `v0.2.0` therefore reports
+`2000`. Development firmware reports `shares_version = 6`, matching the
 repository-owned Config 1001 source and the Test adapter. App development
 stages this source directly; publishing Config 1001 remains a separate reviewed
 Cloud operation.

@@ -38,7 +38,7 @@ tasks:
   dependencies:check:
     desc: Verify local integration dependencies and schema provenance
     cmds:
-      - test "$(git -C {{.CORELIB_DIR}} rev-parse HEAD)" = 5a8d97667851cc6ead26b7e26325d9a58ba957f1
+      - test "$(git -C {{.CORELIB_DIR}} rev-parse HEAD)" = 52c6ab3ca61ca5de71259e53525eae7ef63bbac1
       - TABLE_DIR={{.TABLE_DIR}} support/check-table-schema.sh
 
   test:
@@ -50,23 +50,58 @@ tasks:
       - ctest --test-dir {{.BUILD_DIR}} --output-on-failure
 
   build:
+    desc: Build every Teensy 4.1 transport firmware
+    cmds:
+      - task: build:hid
+      - task: build:serial
+
+  build:hid:
     desc: Build the Teensy 4.1 RawHID firmware
     deps: [generate:check]
     cmds:
       - .venv/bin/pio run --environment teensy41
 
+  build:serial:
+    desc: Build the Teensy 4.1 USB serial firmware
+    deps: [generate:check]
+    cmds:
+      - .venv/bin/pio run --environment teensy41-serial
+
   upload:
-    desc: Build and upload firmware with the headless Teensy loader
+    desc: Build and upload the default RawHID firmware
+    cmds:
+      - task: upload:hid
+
+  upload:hid:
+    desc: Build and upload the RawHID firmware with the headless Teensy loader
     deps: [generate:check]
     cmds:
       - .venv/bin/pio run --environment teensy41 --target upload
 
+  upload:serial:
+    desc: Build and upload the USB serial firmware with the headless Teensy loader
+    deps: [generate:check]
+    cmds:
+      - .venv/bin/pio run --environment teensy41-serial --target upload
+
   e2e:
-    desc: Run physical adapter acceptance against a programmed Teensy
+    desc: Run RawHID physical acceptance against a programmed Teensy
+    cmds:
+      - task: e2e:hid
+
+  e2e:hid:
+    desc: Run RawHID adapter acceptance against a programmed Teensy
     requires:
       vars: [PROGRAMMOR_ADAPTERS_DIR]
     cmds:
       - task --dir {{.PROGRAMMOR_ADAPTERS_DIR}}/tests/test-client run MANIFEST={{.ROOT_DIR}}/tests/adapter-e2e.json
+
+  e2e:serial:
+    desc: Run serial adapter acceptance against a programmed Teensy
+    requires:
+      vars: [PROGRAMMOR_ADAPTERS_DIR]
+    cmds:
+      - task --dir {{.PROGRAMMOR_ADAPTERS_DIR}}/tests/test-client run MANIFEST={{.ROOT_DIR}}/tests/adapter-e2e-serial.json
 
   cloud:status:
     desc: Show environment-bound synchronisation state and the next safe action

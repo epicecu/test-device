@@ -1,7 +1,7 @@
 formatVersion: 1
 interfaceVersion: 1
 configId: 1001
-configVersion: 5
+configVersion: 6
 metadata:
   productName: Test Device
   productBrand: EpicECU
@@ -16,6 +16,13 @@ adapterProfiles:
     connectionMethod: usb-hid
     matches:
       - { vendorId: 5824, productId: 1158 }
+  - adapterId: com.epicecu.programmor.adapter.serial
+    connectionMethod: serial
+    settings: { baudRate: 115200, dataBits: 8, parity: none, stopBits: 1, flowControl: none }
+    openDelayMs: 0
+    discovery:
+      usb:
+        - { vendorId: 5824, productId: 1155 }
 protobuf:
   roots: [test.proto]
 hardware:

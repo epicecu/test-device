@@ -96,7 +96,7 @@ def main() -> None:
     assert value["formatVersion"] == 1
     assert value["interfaceVersion"] == 1
     assert value["configId"] == 1001
-    assert value["configVersion"] == 5
+    assert value["configVersion"] == 6
     header = DEVICE_HEADER.read_text(encoding="utf-8")
     version_match = re.search(
         r"PROGRAMMOR_TEST_DEVICE_CONFIG_VERSION\s*=\s*(\d+)", header
@@ -112,6 +112,20 @@ def main() -> None:
     assert ("com.epicecu.programmor.adapter.test", "test") in profiles
     hid = profiles[("com.epicecu.programmor.adapter.hid", "usb-hid")]
     assert hid["matches"] == [{"vendorId": 5824, "productId": 1158}]
+    serial = profiles[("com.epicecu.programmor.adapter.serial", "serial")]
+    assert serial == {
+        "adapterId": "com.epicecu.programmor.adapter.serial",
+        "connectionMethod": "serial",
+        "settings": {
+            "baudRate": 115200,
+            "dataBits": 8,
+            "parity": "none",
+            "stopBits": 1,
+            "flowControl": "none",
+        },
+        "openDelayMs": 0,
+        "discovery": {"usb": [{"vendorId": 5824, "productId": 1155}]},
+    }
     shares = {model["shareId"] for model in value["dataModels"]}
     assert shares == set(range(1, 10))
     component_list = value["components"]
